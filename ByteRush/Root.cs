@@ -11,10 +11,13 @@ namespace ByteRush
     public enum Op :
         byte
     {
-        PushInt,
+        AddInt,
+
         JumpIfFalse,
         LessThan,
-        AddInt,
+
+        PushInt,
+
         IncInt,
         Get,
         Goto,
@@ -35,24 +38,21 @@ namespace ByteRush
     {
         private const int GROWTH_FACTOR = 2;
 
-        private T[] _values;
-        private int _size;
+        public T[] Inner { get; private set; }
 
-        public T[] Inner => _values;
-
-        public int Length => _size;
+        public int Length { get; private set; }
 
         private ArrayList(T[] values, int size)
         {
-            _values = values;
-            _size = size;
+            Inner = values;
+            Length = size;
         }
 
         public ArrayList<T> Add(T value)
         {
             EnsureOverhead(1);
-            _values[_size] = value;
-            _size++;
+            Inner[Length] = value;
+            Length++;
             return this;
         }
 
@@ -61,22 +61,22 @@ namespace ByteRush
         public ArrayList<T> Grow(int growthAmount)
         {
             EnsureOverhead(growthAmount);
-            _size += growthAmount;
+            Length += growthAmount;
             return this;
         }
 
         public ArrayList<T> EnsureOverhead(int overhead)
         {
-            if (_size + overhead > _values.Length)
+            if (Length + overhead > Inner.Length)
             {
-                var newValues = new T[(_size + overhead) * 2];
-                Array.Copy(_values, newValues, _size);
-                _values = newValues;
+                var newValues = new T[(Length + overhead) * GROWTH_FACTOR];
+                Array.Copy(Inner, newValues, Length);
+                Inner = newValues;
             }
             return this;
         }
 
-        public T[] ToArray() => _values.Take(Length).ToArray();
+        public T[] ToArray() => Inner.Take(Length).ToArray();
     }
 
     public struct IntInserter
@@ -185,10 +185,10 @@ namespace ByteRush
             public bool _bool;
         }
 
-        public Value value;
-        public object reference;
+        public Value _value;
+        public object _reference;
 
-        public T CastRef<T>() => (T)reference;
+        public T CastRef<T>() => (T)_reference;
     }
 
     public static class ByteUtil
@@ -260,26 +260,19 @@ namespace ByteRush
         private readonly Variant[] _stack = new Variant[STACK_SIZE_VALUES];
         private readonly byte[][] _objects;
 
-        private readonly Stopwatch _sw = new Stopwatch();
-        private readonly double[] _stepCount = new double[10000];
-        private int _stepCountIndex;
-
         public VM(byte[] @object)
         {
             _instructionPointer = 0;
             _objectPointer = 0;
-            _stackPointer = 0;
+            _stackPointer = -1;
             _objects = new byte[][] { @object };
-            _stepCountIndex = 0;
         }
 
         public void Execute()
         {
             while (_instructionPointer < 500)
             {
-                //_sw.Restart();
                 Step();
-                //_stepCount[_stepCountIndex++] = _sw.ElapsedHighResolutionFrame60s() * 100;
             }
         }
 
@@ -287,8 +280,7 @@ namespace ByteRush
         {
             _instructionPointer = 0;
             _objectPointer = 0;
-            _stackPointer = 0;
-            _stepCountIndex = 0;
+            _stackPointer = -1;
         }
 
         public void Step()
@@ -301,10 +293,10 @@ namespace ByteRush
             {
                 case Op.AddInt:
                     {
-                        var lhs = _stack[_stackPointer - 1];
+                        var lhs = _stack[_stackPointer];
                         _stackPointer--;
-                        var rhs = _stack[_stackPointer - 1];
-                        _stack[_stackPointer - 1].value._int = lhs.value._int + rhs.value._int;
+                        var rhs = _stack[_stackPointer];
+                        _stack[_stackPointer]._value._int = lhs._value._int + rhs._value._int;
                     }
                     break;
 
@@ -312,8 +304,9 @@ namespace ByteRush
                     {
                         var offset = @object[_instructionPointer];
 
-                        _stack[_stackPointer] = _stack[_stackPointer - offset - 1];
+                        var value = _stack[_stackPointer - offset];
                         _stackPointer++;
+                        _stack[_stackPointer] = value;
 
                         _instructionPointer++;
                     }
@@ -328,46 +321,42 @@ namespace ByteRush
 
                 case Op.IncInt:
                     {
-                        _stack[_stackPointer - 1].value._int++;
+                        _stack[_stackPointer]._value._int++;
                     }
                     break;
 
                 case Op.JumpIfFalse:
                     {
-                        var condition = _stack[_stackPointer - 1];
+                        var condition = _stack[_stackPointer];
                         _stackPointer--;
 
-                        var newIp = condition.value._bool ?
-                            _instructionPointer + sizeof(int) :
-                            ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer = newIp;
-                        //if (condition._value._bool)
-                        //{
-                        //    // Skip the branch
-                        //    _instructionPointer += sizeof(int);
-                        //}
-                        //else
-                        //{
-                        //    var address = ByteUtil.ReadInt(@object, _instructionPointer);
-                        //    _instructionPointer = address;
-                        //}
+                        if (condition._value._bool)
+                        {
+                            // Skip the branch
+                            _instructionPointer += sizeof(int);
+                        }
+                        else
+                        {
+                            var address = ByteUtil.ReadInt(@object, _instructionPointer);
+                            _instructionPointer = address;
+                        }
                     }
                     break;
 
                 case Op.LessThan:
                     {
-                        var lhs = _stack[_stackPointer - 1];
+                        var lhs = _stack[_stackPointer];
                         _stackPointer--;
-                        var rhs = _stack[_stackPointer - 1];
-                        _stack[_stackPointer - 1].value._bool = lhs.value._int < rhs.value._int;
+                        var rhs = _stack[_stackPointer];
+                        _stack[_stackPointer]._value._bool = lhs._value._int < rhs._value._int;
                     }
                     break;
 
                 case Op.PushInt:
                     {
                         var value = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _stack[_stackPointer].value._int = value;
                         _stackPointer++;
+                        _stack[_stackPointer]._value._int = value;
                         _instructionPointer += sizeof(int);
                     }
                     break;
@@ -377,7 +366,7 @@ namespace ByteRush
 
                         var offset = @object[_instructionPointer];
 
-                        _stack[_stackPointer - offset - 1] = _stack[_stackPointer - 1];
+                        _stack[_stackPointer - offset] = _stack[_stackPointer];
                         _stackPointer--;
 
                         _instructionPointer++;

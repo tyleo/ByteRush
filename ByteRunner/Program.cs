@@ -23,13 +23,12 @@ namespace ByteRunner
 
         private static void Main(string[] args)
         {
-            for (var i = 0; i < 10000000; ++i);
             var opWriter = OpWriter.New();
             opWriter.OpPushInt(0);        // lastCurrent
             opWriter.OpPushInt(0);        // current
             opWriter.OpPushInt(1);        // next
             opWriter.OpPushInt(0);        // i
-            opWriter.OpPushInt(50);       // iterations
+            opWriter.OpPushInt(5);       // iterations
 
             var gotoAddr = opWriter.GetAddress();
             opWriter.OpGet(0);            // Push iterations
@@ -65,7 +64,7 @@ namespace ByteRunner
             Console.WriteLine($"{frame60Result} % frame");
 
             sw.Restart();
-            Fibonacci(50);
+            var result = Fibonacci(5);
             var msResult2 = sw.ElapsedHighResolutionMilliseconds();
             var frame60Result2 = sw.ElapsedHighResolutionFrame60s() * 100;
             Console.WriteLine($"{msResult2} ms");
