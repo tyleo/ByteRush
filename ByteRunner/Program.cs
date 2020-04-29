@@ -1,11 +1,11 @@
-﻿using ByteRush;
+﻿using ByteRush.CodeGen;
+using ByteRush.Extensions;
+using ByteRush.Interpreter;
 using System;
 using System.Diagnostics;
 
 namespace ByteRunner
 {
-
-
     public static class Program
     {
         private static int Fibonacci(int iterations)
@@ -24,44 +24,8 @@ namespace ByteRunner
         private static void Main(string[] args)
         {
             var opWriter = OpWriter.New();
-            //opWriter.OpPushBlock(
-            //    0,
-            //    0,
-            //    1,
-            //    0,
-            //    5
-            //);
-            opWriter.OpPushInt(0);        // lastCurrent
-            opWriter.OpPushInt(0);        // current
-            opWriter.OpPushInt(1);        // next
-            opWriter.OpPushInt(0);        // i
-            opWriter.OpPushInt(5);        // iterations
-
-            var gotoAddr = opWriter.GetAddress();
-            opWriter.OpGet(0);            // Push iterations
-            opWriter.OpGet(2);            // Push 0
-            opWriter.OpLessThan();        // Push 0 < iterations
-            opWriter.OpJumpIfFalse()
-                .Write(1000);             // Goto 1000 if false
-            opWriter.OpGet(1);            // Get i
-            opWriter.OpIncInt();          // Inc i
-            opWriter.OpSet(2);            // Set i
-
-            opWriter.OpGet(3);            // Get current;
-            opWriter.OpSet(5);            // Set last = current
-
-            opWriter.OpGet(2);            // Get next;
-            opWriter.OpSet(4);            // Set current = next
-
-            opWriter.OpGet(4);            // Get lastCurrent
-            opWriter.OpGet(4);            // Get next
-            opWriter.OpAddInt();          // lastCurrent + next
-            opWriter.OpSet(3);            // next = lastCurrent + next
-
-            opWriter.OpGoto(25);         // Goto top of loop
-
-            var bytes = opWriter.GetBytes();
-            var vm = new VM(bytes);
+            var bytes = Register();
+            var vm = new VirtualMachine(bytes);
 
             var sw = Stopwatch.StartNew();
             vm.Execute();
@@ -76,6 +40,108 @@ namespace ByteRunner
             var frame60Result2 = sw.ElapsedHighResolutionFrame60s() * 100;
             Console.WriteLine($"{msResult2} ms");
             Console.WriteLine($"{frame60Result2} % frame");
+        }
+
+        private static byte[] Base()
+        {
+
+            var opWriter = OpWriter.New();
+            opWriter.OpPushInt(0);        // lastCurrent
+            opWriter.OpPushInt(0);        // current
+            opWriter.OpPushInt(1);        // next
+            opWriter.OpPushInt(0);        // i
+            opWriter.OpPushInt(5);        // iterations
+
+            var gotoAddr = opWriter.GetAddress();
+            opWriter.OpGet(0);            // Push iterations
+            opWriter.OpGet(2);            // Push 0
+            opWriter.OpLessThanStack();   // Push 0 < iterations
+            opWriter.OpJumpIfFalse()
+                .Write(1000);             // Goto 1000 if false
+            opWriter.OpGet(1);            // Get i
+            opWriter.OpIncIntStack();          // Inc i
+            opWriter.OpSet(2);            // Set i
+
+            opWriter.OpGet(3);            // Get current;
+            opWriter.OpSet(5);            // Set last = current
+
+            opWriter.OpGet(2);            // Get next;
+            opWriter.OpSet(4);            // Set current = next
+
+            opWriter.OpGet(4);            // Get lastCurrent
+            opWriter.OpGet(4);            // Get next
+            opWriter.OpAddInt();          // lastCurrent + next
+            opWriter.OpSet(3);            // next = lastCurrent + next
+
+            opWriter.OpGoto(gotoAddr);    // Goto top of loop
+
+            return opWriter.GetBytes();
+        }
+
+        private static byte[] PushBlock()
+        {
+
+            var opWriter = OpWriter.New();
+            opWriter.OpPushBlock(
+                0,                        // lastCurrent
+                0,                        // current
+                1,                        // next
+                0,                        // i
+                5                         // iterations
+            );
+
+            var gotoAddr = opWriter.GetAddress();
+            opWriter.OpGet(0);            // Push iterations
+            opWriter.OpGet(2);            // Push 0
+            opWriter.OpLessThanStack();   // Push 0 < iterations
+            opWriter.OpJumpIfFalse()
+                .Write(1000);             // Goto 1000 if false
+            opWriter.OpGet(1);            // Get i
+            opWriter.OpIncIntStack();          // Inc i
+            opWriter.OpSet(2);            // Set i
+
+            opWriter.OpGet(3);            // Get current;
+            opWriter.OpSet(5);            // Set last = current
+
+            opWriter.OpGet(2);            // Get next;
+            opWriter.OpSet(4);            // Set current = next
+
+            opWriter.OpGet(4);            // Get lastCurrent
+            opWriter.OpGet(4);            // Get next
+            opWriter.OpAddInt();          // lastCurrent + next
+            opWriter.OpSet(3);            // next = lastCurrent + next
+
+            opWriter.OpGoto(gotoAddr);    // Goto top of loop
+
+            return opWriter.GetBytes();
+        }
+
+        private static byte[] Register()
+        {
+
+            var opWriter = OpWriter.New();
+            opWriter.OpPushBlock(
+                0,                            // lastCurrent
+                0,                            // current
+                1,                            // next
+                0,                            // i
+                5                             // iterations
+            );
+
+            var gotoAddr = opWriter.GetAddress();
+            opWriter.OpLessThanRegPush(1, 0); // Push i < iterations
+            opWriter.OpJumpIfFalse()
+                .Write(1000);                 // Goto 1000 if false
+
+            opWriter.OpIncIntReg(1);          // i++
+            opWriter.OpCopy(3, 4);            // last = current
+            opWriter.OpCopy(2, 3);            // current = next
+
+            opWriter.OpAddIntReg(4, 2, 2);    // lastCurrent + next
+
+            opWriter.OpGoto(gotoAddr);        // Goto top of loop
+
+            return opWriter.GetBytes();
         }
     }
 }
