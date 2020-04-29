@@ -17,12 +17,39 @@ namespace ByteRush
         LessThan,
 
         PushInt,
+        // This may not be any faster than individual pushes.
+        PushBlock,
 
         IncInt,
         Get,
         Goto,
         Set
     }
+
+    
+
+    //public enum ValueKind
+    //{
+    //    Int,
+    //    Float,
+    //    Bool
+    //}
+
+    //public struct TaggedVariant
+    //{
+    //    public readonly Variant _variant;
+    //    public readonly ValueKind _tag;
+
+    //    private TaggedVariant(Variant variant, ValueKind tag)
+    //    {
+    //        _variant = variant;
+    //        _tag = tag;
+    //    }
+
+    //    public static TaggedVariant Int(int value) => new TaggedVariant(Variant.Int(value), ValueKind.Int);
+    //    public static TaggedVariant Float(float value) => new TaggedVariant(Variant.Float(value), ValueKind.Float);
+    //    public static TaggedVariant Bool(bool value) => new TaggedVariant(Variant.Bool(value), ValueKind.Bool);
+    //}
 
     public static class IntExtensions
     {
@@ -101,6 +128,13 @@ namespace ByteRush
 
         public int GetAddress() => _bytes.Length;
 
+        private void Bool(bool value)
+        {
+            var startIndex = _bytes.Length;
+            _bytes.Grow(sizeof(bool));
+            ByteUtil.WriteBool(_bytes.Inner, startIndex, value);
+        }
+
         private void Byte(byte value)
         {
             var startIndex = _bytes.Length;
@@ -108,11 +142,25 @@ namespace ByteRush
             ByteUtil.WriteByte(_bytes.Inner, startIndex, value);
         }
 
+        private void Float(float value)
+        {
+            var startIndex = _bytes.Length;
+            _bytes.Grow(sizeof(float));
+            ByteUtil.WriteFloat(_bytes.Inner, startIndex, value);
+        }
+
         private void Int(int value)
         {
             var startIndex = _bytes.Length;
             _bytes.Grow(sizeof(int));
             ByteUtil.WriteInt(_bytes.Inner, startIndex, value);
+        }
+
+        private void Value(Value value)
+        {
+            var startIndex = _bytes.Length;
+            _bytes.Grow(sizeof(int));
+            ByteUtil.WriteInt(_bytes.Inner, startIndex, value._int);
         }
 
         private void Null() => _bytes.Add(0xFF);
@@ -154,6 +202,13 @@ namespace ByteRush
             Int(value);
         }
 
+        public void OpPushBlock(params Value[] values)
+        {
+            _bytes.Add(Op.PushBlock.Byte());
+            Int(values.Length);
+            foreach (var value in values) Value(value);
+        }
+
         public void OpSet(byte offset)
         {
             _bytes.Add(Op.Set.Byte());
@@ -172,29 +227,74 @@ namespace ByteRush
         public static OpWriter New() => new OpWriter(ArrayList<byte>.New());
     }
 
+    [StructLayout(LayoutKind.Explicit)]
+    public struct Value
+    {
+        [FieldOffset(0)]
+        public float _float;
+        [FieldOffset(0)]
+        public int _int;
+        [FieldOffset(0)]
+        public bool _bool;
+
+        public Value(float value) : this() => _float = value;
+        public Value(int value) : this() => _int = value;
+        public Value(bool value) : this() => _bool = value;
+
+        public static implicit operator Value(float value) => new Value(value);
+        public static implicit operator Value(int value) => new Value(value);
+        public static implicit operator Value(bool value) => new Value(value);
+    }
+
     public struct Variant
     {
+        public Value _value;
+        public object _reference;
+
+        public T CastRef<T>() => (T)_reference;
+
+        private Variant(Value value, object reference)
+        {
+            _value = value;
+            _reference = reference;
+        }
+
+        public static Variant Float(float value) => new Variant(new Value(value), null);
+        public static Variant Int(int value) => new Variant(new Value(value), null);
+        public static Variant Bool(bool value) => new Variant(new Value(value), null);
+    }
+
+    public static class ByteUtil
+    {
         [StructLayout(LayoutKind.Explicit)]
-        public struct Value
+        private struct BoolByte
+        {
+            [FieldOffset(0)]
+            public bool _bool;
+            [FieldOffset(0)]
+            public byte _byte;
+
+            public BoolByte(bool value) : this() => _bool = value;
+            public BoolByte(byte value) : this() => _byte = value;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct FloatInt
         {
             [FieldOffset(0)]
             public float _float;
             [FieldOffset(0)]
             public int _int;
-            [FieldOffset(0)]
-            public bool _bool;
+
+            public FloatInt(float value) : this() => _float = value;
+            public FloatInt(int value) : this() => _int = value;
         }
 
-        public Value _value;
-        public object _reference;
-
-        public T CastRef<T>() => (T)_reference;
-    }
-
-    public static class ByteUtil
-    {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ReadByte(byte[] bytes, int index) => bytes[index];
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ReadBool(byte[] bytes, int index) => new BoolByte(bytes[index])._bool;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReadInt(byte[] bytes, int index) =>
@@ -204,9 +304,33 @@ namespace ByteRush
             bytes[index + 3] << 24;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteByte(byte[] bytes, int index, byte value) => bytes[index] = value;
+        public static float ReadFloat(byte[] bytes, int index)
+        {
+            var intValue = bytes[index + 0] << 0 |
+            bytes[index + 1] << 8 |
+            bytes[index + 2] << 16 |
+            bytes[index + 3] << 24;
+            return new FloatInt(intValue)._float;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteBool(byte[] bytes, int index, bool value) => bytes[index] = new BoolByte(value)._byte;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteByte(byte[] bytes, int index, byte value) => bytes[index] = value;
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteFloat(byte[] bytes, int index, float value)
+        {
+            var intValue = new FloatInt(value)._int;
+            bytes[index + 0] = (intValue >> 0).Byte();
+            bytes[index + 1] = (intValue >> 8).Byte();
+            bytes[index + 2] = (intValue >> 16).Byte();
+            bytes[index + 3] = (intValue >> 24).Byte();
+        }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteInt(byte[] bytes, int index, int value)
         {
             bytes[index + 0] = (value >> 0).Byte();
@@ -349,6 +473,19 @@ namespace ByteRush
                         _stackPointer--;
                         var rhs = _stack[_stackPointer];
                         _stack[_stackPointer]._value._bool = lhs._value._int < rhs._value._int;
+                    }
+                    break;
+
+                case Op.PushBlock:
+                    {
+                        var size = ByteUtil.ReadInt(@object, _instructionPointer);
+                        _instructionPointer += sizeof(int);
+                        for (var i = 0; i < size; ++i)
+                        {
+                            _stackPointer++;
+                            _stack[_stackPointer]._value._int = ByteUtil.ReadInt(@object, _instructionPointer);
+                            _instructionPointer += sizeof(int);
+                        }
                     }
                     break;
 

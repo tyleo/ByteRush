@@ -24,11 +24,18 @@ namespace ByteRunner
         private static void Main(string[] args)
         {
             var opWriter = OpWriter.New();
+            //opWriter.OpPushBlock(
+            //    0,
+            //    0,
+            //    1,
+            //    0,
+            //    5
+            //);
             opWriter.OpPushInt(0);        // lastCurrent
             opWriter.OpPushInt(0);        // current
             opWriter.OpPushInt(1);        // next
             opWriter.OpPushInt(0);        // i
-            opWriter.OpPushInt(5);       // iterations
+            opWriter.OpPushInt(5);        // iterations
 
             var gotoAddr = opWriter.GetAddress();
             opWriter.OpGet(0);            // Push iterations
