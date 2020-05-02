@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace ByteRush.Extensions
+namespace ByteRush.Util.Extensions
 {
     public static class StopwatchExtensions
     {

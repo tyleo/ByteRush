@@ -13,6 +13,6 @@ namespace ByteRush.CodeGen
             _index = index;
         }
 
-        public void Write(int value) => ByteUtil.WriteInt(_bytes.Inner, _index, value);
+        public void Write(int value) => ByteUtil.WriteI32(_bytes.Inner, _index, value);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace ByteRush.Extensions
+﻿namespace ByteRush.Util.Extensions
 {
     public static class IntExt
     {

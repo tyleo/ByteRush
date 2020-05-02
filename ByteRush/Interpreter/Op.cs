@@ -26,6 +26,6 @@
 
     public static class OpExtensions
     {
-        public static byte Byte(this Op self) => (byte)self;
+        public static byte U8(this Op self) => (byte)self;
     }
 }

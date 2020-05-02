@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ByteRush.Util.Interface;
+using System;
 using System.Linq;
 
 namespace ByteRush.Util
 {
-    public sealed class ArrayList<T>
+    public sealed class ArrayList<T> : IRefList<T>
     {
         private const int GROWTH_FACTOR = 2;
 
@@ -17,24 +18,24 @@ namespace ByteRush.Util
             Length = size;
         }
 
-        public ArrayList<T> Add(T value)
+        public void Add(in T value)
         {
             EnsureOverhead(1);
             Inner[Length] = value;
             Length++;
-            return this;
         }
 
         public static ArrayList<T> New() => new ArrayList<T>(new T[0], 0);
 
-        public ArrayList<T> Grow(int growthAmount)
+        public static ArrayList<T> FromArray(T[] array) => new ArrayList<T>(array, array.Length);
+
+        public void Grow(int growthAmount)
         {
             EnsureOverhead(growthAmount);
             Length += growthAmount;
-            return this;
         }
 
-        public ArrayList<T> EnsureOverhead(int overhead)
+        public void EnsureOverhead(int overhead)
         {
             if (Length + overhead > Inner.Length)
             {
@@ -42,9 +43,10 @@ namespace ByteRush.Util
                 Array.Copy(Inner, newValues, Length);
                 Inner = newValues;
             }
-            return this;
         }
 
         public T[] ToArray() => Inner.Take(Length).ToArray();
+
+        public ref T this[int i] => ref Inner[i];
     }
 }

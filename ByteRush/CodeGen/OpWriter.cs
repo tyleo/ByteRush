@@ -11,39 +11,39 @@ namespace ByteRush.CodeGen
 
         public int GetAddress() => _bytes.Length;
 
-        private void Bool(bool value)
+        public void Bool(bool value)
         {
             var startIndex = _bytes.Length;
             _bytes.Grow(sizeof(bool));
             ByteUtil.WriteBool(_bytes.Inner, startIndex, value);
         }
 
-        private void Byte(byte value)
+        public void U8(byte value)
         {
             var startIndex = _bytes.Length;
             _bytes.Grow(sizeof(byte));
-            ByteUtil.WriteByte(_bytes.Inner, startIndex, value);
+            ByteUtil.WriteU8(_bytes.Inner, startIndex, value);
         }
 
-        private void Float(float value)
+        public void F32(float value)
         {
             var startIndex = _bytes.Length;
             _bytes.Grow(sizeof(float));
-            ByteUtil.WriteFloat(_bytes.Inner, startIndex, value);
+            ByteUtil.WriteF32(_bytes.Inner, startIndex, value);
         }
 
-        private void Int(int value)
+        public void I32(int value)
         {
             var startIndex = _bytes.Length;
             _bytes.Grow(sizeof(int));
-            ByteUtil.WriteInt(_bytes.Inner, startIndex, value);
+            ByteUtil.WriteI32(_bytes.Inner, startIndex, value);
         }
 
         private void Value(Variant value)
         {
             var startIndex = _bytes.Length;
             _bytes.Grow(sizeof(int));
-            ByteUtil.WriteInt(_bytes.Inner, startIndex, value._int);
+            ByteUtil.WriteI32(_bytes.Inner, startIndex, value._int);
         }
 
         private void Null() => _bytes.Add(0xFF);
@@ -53,76 +53,76 @@ namespace ByteRush.CodeGen
             for (var i = 0; i < amount; ++i) Null();
         }
 
-        public void OpAddInt() => _bytes.Add(Op.AddIntStack.Byte());
+        public void OpAddInt() => _bytes.Add(Op.AddIntStack.U8());
 
         public void OpAddIntReg(int lhsOffset, int rhsOffset, int storeOffset)
         {
-            _bytes.Add(Op.AddIntReg.Byte());
-            Int(lhsOffset);
-            Int(rhsOffset);
-            Int(storeOffset);
+            _bytes.Add(Op.AddIntReg.U8());
+            I32(lhsOffset);
+            I32(rhsOffset);
+            I32(storeOffset);
         }
 
         public void OpCopy(int fromOffset, int toOffset)
         {
-            _bytes.Add(Op.Copy.Byte());
-            Int(fromOffset);
-            Int(toOffset);
+            _bytes.Add(Op.Copy.U8());
+            I32(fromOffset);
+            I32(toOffset);
         }
 
         public void OpGet(byte offset)
         {
-            _bytes.Add(Op.Get.Byte());
+            _bytes.Add(Op.Get.U8());
             _bytes.Add(offset);
         }
 
         public void OpGoto(int address)
         {
-            _bytes.Add(Op.Goto.Byte());
-            Int(address);
+            _bytes.Add(Op.Goto.U8());
+            I32(address);
         }
 
-        public void OpIncIntStack() => _bytes.Add(Op.IncIntStack.Byte());
+        public void OpIncIntStack() => _bytes.Add(Op.IncIntStack.U8());
 
         public void OpIncIntReg(int offset)
         {
-            _bytes.Add(Op.IncIntReg.Byte());
-            Int(offset);
+            _bytes.Add(Op.IncIntReg.U8());
+            I32(offset);
         }
 
         public IntInserter OpJumpIfFalse()
         {
-            _bytes.Add(Op.JumpIfFalse.Byte());
+            _bytes.Add(Op.JumpIfFalse.U8());
             var insertAddress = GetAddress();
-            Int(0);
+            I32(0);
             return new IntInserter(_bytes, insertAddress);
         }
 
-        public void OpLessThanStack() => _bytes.Add(Op.LessThanStack.Byte());
+        public void OpLessThanStack() => _bytes.Add(Op.LessThanStack.U8());
 
         public void OpLessThanRegPush(int lhsAddress, int rhsAddress)
         {
-            _bytes.Add(Op.LessThanRegPush.Byte());
-            Int(lhsAddress);
-            Int(rhsAddress);
+            _bytes.Add(Op.LessThanRegPush.U8());
+            I32(lhsAddress);
+            I32(rhsAddress);
         }
 
         public void OpPushInt(int value)
         {
-            _bytes.Add(Op.PushInt.Byte());
-            Int(value);
+            _bytes.Add(Op.PushInt.U8());
+            I32(value);
         }
 
         public void OpPushBlock(params Variant[] values)
         {
-            _bytes.Add(Op.PushBlock.Byte());
-            Int(values.Length);
+            _bytes.Add(Op.PushBlock.U8());
+            I32(values.Length);
             foreach (var value in values) Value(value);
         }
 
         public void OpSet(byte offset)
         {
-            _bytes.Add(Op.Set.Byte());
+            _bytes.Add(Op.Set.U8());
             _bytes.Add(offset);
         }
 

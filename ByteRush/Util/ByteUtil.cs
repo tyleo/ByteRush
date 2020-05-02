@@ -1,4 +1,4 @@
-﻿using ByteRush.Extensions;
+﻿using ByteRush.Util.Extensions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -57,11 +57,11 @@ namespace ByteRush.Util
         public static void WriteBool(byte[] bytes, int index, bool value) => bytes[index] = new BoolByte(value)._byte;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteByte(byte[] bytes, int index, byte value) => bytes[index] = value;
+        public static void WriteU8(byte[] bytes, int index, byte value) => bytes[index] = value;
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteFloat(byte[] bytes, int index, float value)
+        public static void WriteF32(byte[] bytes, int index, float value)
         {
             var intValue = new FloatInt(value)._int;
             bytes[index + 0] = (intValue >> 0).Byte();
@@ -71,7 +71,7 @@ namespace ByteRush.Util
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteInt(byte[] bytes, int index, int value)
+        public static void WriteI32(byte[] bytes, int index, int value)
         {
             bytes[index + 0] = (value >> 0).Byte();
             bytes[index + 1] = (value >> 8).Byte();

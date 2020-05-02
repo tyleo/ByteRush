@@ -1,8 +1,13 @@
-﻿using ByteRush.CodeGen;
-using ByteRush.Extensions;
+﻿using ByteRush.Action;
+using ByteRush.CodeGen;
+using ByteRush.Util.Extensions;
 using ByteRush.Interpreter;
+using ByteRush.Graph;
 using System;
 using System.Diagnostics;
+
+using CodeGenState = ByteRush.CodeGen.State;
+using GraphState = ByteRush.Graph.State;
 
 namespace ByteRunner
 {
@@ -23,6 +28,12 @@ namespace ByteRunner
 
         private static void Main(string[] args)
         {
+            var state = GraphState.New();
+            state.Reduce(AddNodeDecls.New(
+                NodeDecl.New(new CodeGenerator((in CodeGenState s) => { }), Array.Empty<PortDecl>(), Array.Empty<PortDecl>())
+            )); ;
+
+
             var opWriter = OpWriter.New();
             var bytes = Register();
             var vm = new VirtualMachine(bytes);
