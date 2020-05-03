@@ -1,4 +1,4 @@
-﻿using ByteRush.Util.Extensions;
+﻿using ByteRush.Utilities.Extensions;
 using System;
 
 namespace ByteRush.Graph
@@ -16,5 +16,7 @@ namespace ByteRush.Graph
         public override bool Equals(object obj) => this.EquatableEquals(obj);
 
         public override int GetHashCode() => _value;
+
+        public int Int => _value;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ByteRush.Action;
 using ByteRush.CodeGen;
-using ByteRush.Util.Extensions;
+using ByteRush.Graph.Definitions;
+using ByteRush.Utilities.Extensions;
 using ByteRush.Interpreter;
 using ByteRush.Graph;
 using System;
@@ -30,8 +31,8 @@ namespace ByteRunner
         {
             var state = GraphState.New();
             state.Reduce(AddNodeDecls.New(
-                NodeDecl.New(new CodeGenerator((in CodeGenState s) => { }), Array.Empty<PortDecl>(), Array.Empty<PortDecl>())
-            )); ;
+                IfDef.New()
+            ));
 
 
             var opWriter = OpWriter.New();
@@ -81,7 +82,7 @@ namespace ByteRunner
 
             opWriter.OpGet(4);            // Get lastCurrent
             opWriter.OpGet(4);            // Get next
-            opWriter.OpAddInt();          // lastCurrent + next
+            opWriter.OpAddIntStack();          // lastCurrent + next
             opWriter.OpSet(3);            // next = lastCurrent + next
 
             opWriter.OpGoto(gotoAddr);    // Goto top of loop
@@ -119,7 +120,7 @@ namespace ByteRunner
 
             opWriter.OpGet(4);            // Get lastCurrent
             opWriter.OpGet(4);            // Get next
-            opWriter.OpAddInt();          // lastCurrent + next
+            opWriter.OpAddIntStack();          // lastCurrent + next
             opWriter.OpSet(3);            // next = lastCurrent + next
 
             opWriter.OpGoto(gotoAddr);    // Goto top of loop

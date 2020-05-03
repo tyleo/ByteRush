@@ -1,4 +1,4 @@
-﻿using ByteRush.Util;
+﻿using ByteRush.Utilities;
 using System;
 
 namespace ByteRush.Interpreter

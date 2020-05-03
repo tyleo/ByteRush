@@ -9,8 +9,4 @@
     <ProjectReference Include="..\ByteRush\ByteRush.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="CodeGenerators\" />
-  </ItemGroup>
-
 </Project>

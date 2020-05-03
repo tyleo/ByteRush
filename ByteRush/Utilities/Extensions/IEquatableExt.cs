@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ByteRush.Util.Extensions
+namespace ByteRush.Utilities.Extensions
 {
     public static class EquatableExt
     {

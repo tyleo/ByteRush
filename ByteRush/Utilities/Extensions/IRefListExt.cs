@@ -1,7 +1,7 @@
-﻿using ByteRush.Util.Interface;
+﻿using ByteRush.Utilities.Interface;
 using System.Collections.Generic;
 
-namespace ByteRush.Util.Extensions
+namespace ByteRush.Utilities.Extensions
 {
     public static class IRefListExt
     {

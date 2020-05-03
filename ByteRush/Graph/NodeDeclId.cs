@@ -3,15 +3,15 @@ using System;
 
 namespace ByteRush.Graph
 {
-    public struct PortId : IEquatable<PortId>
+    public struct NodeDeclId : IEquatable<NodeDeclId>
     {
         private readonly int _value;
 
-        private PortId(int value) => _value = value;
+        private NodeDeclId(int value) => _value = value;
 
-        public static PortId New(int value) => new PortId(value);
+        public static NodeDeclId New(int value) => new NodeDeclId(value);
 
-        public bool Equals(PortId other) => _value == other._value;
+        public bool Equals(NodeDeclId other) => _value == other._value;
 
         public override bool Equals(object obj) => this.EquatableEquals(obj);
 

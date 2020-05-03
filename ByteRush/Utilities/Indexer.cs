@@ -1,8 +1,8 @@
-﻿using ByteRush.Util.Extensions;
+﻿using ByteRush.Utilities.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ByteRush.Util
+namespace ByteRush.Utilities
 {
     public sealed class Indexer
     {

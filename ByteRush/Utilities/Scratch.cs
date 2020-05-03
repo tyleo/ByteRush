@@ -1,4 +1,4 @@
-﻿namespace ByteRush.Util
+﻿namespace ByteRush.Utilities
 {
     #region Idea for tagged variant
 

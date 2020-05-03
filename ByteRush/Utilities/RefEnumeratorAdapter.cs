@@ -1,7 +1,7 @@
-﻿using ByteRush.Util.Interface;
+﻿using ByteRush.Utilities.Interface;
 using System.Collections.Generic;
 
-namespace ByteRush.Util
+namespace ByteRush.Utilities
 {
     public sealed class RefEnumeratorAdapter<T> : IRefEnumerator<T>
     {

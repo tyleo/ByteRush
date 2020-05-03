@@ -1,27 +1,23 @@
 ﻿using ByteRush.Action;
-using ByteRush.Util;
+using ByteRush.Utilities;
 
 namespace ByteRush.Graph
 {
-    public struct State
+    public sealed class State
     {
-        private readonly ArrayList<NodeDecl> _nodeDecls;
-        private readonly ArrayList<NodeDef> _nodeDefs;
+        private readonly ArrayList<INodeDecl> _nodeDecls;
 
-        public ref NodeDecl GetNodeDecl(int i) => ref _nodeDecls[i];
+        public ref INodeDecl GetNodeDecl(NodeDeclId i) => ref _nodeDecls[i.Int];
 
         private State(
-            ArrayList<NodeDecl> nodeDecls,
-            ArrayList<NodeDef> nodeDefs
+            ArrayList<INodeDecl> nodeDecls
         )
         {
             this._nodeDecls = nodeDecls;
-            this._nodeDefs = nodeDefs;
         }
 
         public static State New() => new State(
-            ArrayList<NodeDecl>.New(),
-            ArrayList<NodeDef>.New()
+            ArrayList<INodeDecl>.New()
         );
 
         public void Reduce(IAction action)

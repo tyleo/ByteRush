@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace ByteRush.Util
+namespace ByteRush.Utilities
 {
     [StructLayout(LayoutKind.Explicit)]
     public struct Variant

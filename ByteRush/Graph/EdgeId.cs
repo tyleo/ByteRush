@@ -1,4 +1,4 @@
-﻿using ByteRush.Util.Extensions;
+﻿using ByteRush.Utilities.Extensions;
 using System;
 
 namespace ByteRush.Graph

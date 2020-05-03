@@ -1,4 +1,4 @@
-﻿namespace ByteRush.Util.Interface
+﻿namespace ByteRush.Utilities.Interface
 {
     public interface IRefEnumerable<T>
     {

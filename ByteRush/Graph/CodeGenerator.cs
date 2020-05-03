@@ -1,6 +1,9 @@
-﻿using ByteRush.CodeGen;
-
-namespace ByteRush.Graph
+﻿namespace ByteRush.Graph
 {
-    public delegate void CodeGenerator(in Node node, in CodeGen.State state);
+    public delegate void CodeGenerator(
+        in Node node,
+        in NodeDef nodeDef,
+        in CodeGen.State state,
+        in State graphState
+    );
 }

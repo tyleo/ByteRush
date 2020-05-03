@@ -3,7 +3,7 @@
     public enum Op :
         byte
     {
-        AddIntReg,
+        AddInt,
         Copy,
         Goto,
         IncIntReg,
@@ -18,13 +18,14 @@
         PushBlock,
 
         // Retired?
+        AddIntReg,
         AddIntStack,
         IncIntStack,
         LessThanStack,
         PushInt
     }
 
-    public static class OpExtensions
+    public static class OpCodeExtensions
     {
         public static byte U8(this Op self) => (byte)self;
     }

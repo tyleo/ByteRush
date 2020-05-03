@@ -1,7 +1,17 @@
 ﻿namespace ByteRush.Graph
 {
-    public struct PortDecl
+    public sealed class PortDecl
     {
-        private string _name;
+        public string Name { get; }
+        public TypeKind Type { get; }
+
+        private PortDecl(string name, TypeKind type)
+        {
+            Name = name;
+            Type = type;
+        }
+
+        public static PortDecl New(string name, TypeKind type) =>
+            new PortDecl(name, type);
     }
 }

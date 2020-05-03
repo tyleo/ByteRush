@@ -1,5 +1,5 @@
 ﻿using ByteRush.Graph;
-using ByteRush.Util;
+using ByteRush.Utilities;
 
 namespace ByteRush.Action
 {
@@ -7,11 +7,11 @@ namespace ByteRush.Action
     {
         public ActionKind Kind => ActionKind.AddNodeDecls;
 
-        public ArrayList<NodeDecl> NodeDecls { get; }
+        public ArrayList<INodeDecl> NodeDecls { get; }
 
-        private AddNodeDecls(ArrayList<NodeDecl> nodeDecls) => NodeDecls = nodeDecls;
+        private AddNodeDecls(ArrayList<INodeDecl> nodeDecls) => NodeDecls = nodeDecls;
 
-        public static AddNodeDecls New(params NodeDecl[] nodeDecls) =>
-            new AddNodeDecls(ArrayList<NodeDecl>.FromArray(nodeDecls));
+        public static AddNodeDecls New(params INodeDecl[] nodeDecls) =>
+            new AddNodeDecls(ArrayList<INodeDecl>.FromArray(nodeDecls));
     }
 }

@@ -1,8 +1,8 @@
-﻿using ByteRush.Util.Extensions;
+﻿using ByteRush.Utilities.Extensions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace ByteRush.Util
+namespace ByteRush.Utilities
 {
     public static class ByteUtil
     {

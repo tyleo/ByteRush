@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ByteRush.Util
+namespace ByteRush.Utilities
 {
     public sealed class CompactedList<T>
     {
@@ -10,7 +10,7 @@ namespace ByteRush.Util
         public int Add(T item)
         {
             var index = _indexer.GetIndex();
-            if (_inner.Length >= index)
+            if (_inner.Count >= index)
             {
                 _inner.Add(item);
             }

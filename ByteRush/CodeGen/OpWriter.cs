@@ -1,4 +1,4 @@
-﻿using ByteRush.Util;
+﻿using ByteRush.Utilities;
 using ByteRush.Interpreter;
 
 namespace ByteRush.CodeGen
@@ -9,39 +9,39 @@ namespace ByteRush.CodeGen
 
         public byte[] GetBytes() => _bytes.ToArray();
 
-        public int GetAddress() => _bytes.Length;
+        public int GetAddress() => _bytes.Count;
 
         public void Bool(bool value)
         {
-            var startIndex = _bytes.Length;
+            var startIndex = _bytes.Count;
             _bytes.Grow(sizeof(bool));
             ByteUtil.WriteBool(_bytes.Inner, startIndex, value);
         }
 
         public void U8(byte value)
         {
-            var startIndex = _bytes.Length;
+            var startIndex = _bytes.Count;
             _bytes.Grow(sizeof(byte));
             ByteUtil.WriteU8(_bytes.Inner, startIndex, value);
         }
 
         public void F32(float value)
         {
-            var startIndex = _bytes.Length;
+            var startIndex = _bytes.Count;
             _bytes.Grow(sizeof(float));
             ByteUtil.WriteF32(_bytes.Inner, startIndex, value);
         }
 
         public void I32(int value)
         {
-            var startIndex = _bytes.Length;
+            var startIndex = _bytes.Count;
             _bytes.Grow(sizeof(int));
             ByteUtil.WriteI32(_bytes.Inner, startIndex, value);
         }
 
         private void Value(Variant value)
         {
-            var startIndex = _bytes.Length;
+            var startIndex = _bytes.Count;
             _bytes.Grow(sizeof(int));
             ByteUtil.WriteI32(_bytes.Inner, startIndex, value._int);
         }
@@ -53,7 +53,9 @@ namespace ByteRush.CodeGen
             for (var i = 0; i < amount; ++i) Null();
         }
 
-        public void OpAddInt() => _bytes.Add(Op.AddIntStack.U8());
+        public void OpAddInt() => _bytes.Add(Op.AddInt.U8());
+
+        public void OpAddIntStack() => _bytes.Add(Op.AddIntStack.U8());
 
         public void OpAddIntReg(int lhsOffset, int rhsOffset, int storeOffset)
         {

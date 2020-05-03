@@ -1,5 +1,5 @@
 ﻿using ByteRush.CodeGen;
-using ByteRush.Util;
+using ByteRush.Utilities;
 
 namespace ByteRush.Graph
 {
@@ -8,6 +8,7 @@ namespace ByteRush.Graph
         private ArrayList<EdgeId> _edges;
         private TypeKind _type;
 
+        public int EdgeCount => _edges.Count;
         public ref EdgeId GetEdge(EdgeId id) => ref _edges[id.Int];
     }
 }
