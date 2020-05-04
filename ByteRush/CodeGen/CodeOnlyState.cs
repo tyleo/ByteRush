@@ -8,26 +8,27 @@ using System.Text;
 
 namespace ByteRush.CodeGen
 {
-    public sealed class State
+    public sealed class CodeOnlyState
     {
-        public NodeDef NodeDef;
-        public Graph.State GraphState;
+        public NodeDef NodeDef { get; }
+        public Graph.State GraphState { get; }
+        public CodeOnlyOpCodeWriter OpWriter { get; }
 
-        private readonly OpWriter _opWriter;
         private int _currentAnonomyous;
 
-        private readonly ISet<ISymbol> _allSymbols;
+        //private readonly IList<(OpCodeOnlyAddress, ISymbol)> _allSymbols;
         private readonly IDictionary<InputPortKey, int> _execBranchTerminationPoints;
         private readonly IDictionary<OutputPortKey, ISymbol> _portToSymbol;
         private readonly ISet<NodeId> _generatedNodes;
         private readonly ISet<NodeId> _generatedExpressions;
 
-        public void AddSymbol(OutputPortKey key, ISymbol symbol)
+        public void SetOutputSymbol(OutputPortKey key, ISymbol symbol)
         {
-            _allSymbols.Add(symbol);
             _portToSymbol.Add(key, symbol);
         }
         public ISymbol GetSymbol(OutputPortKey key) => _portToSymbol[key];
+
+        public ISymbol RetainAnonomyous() => AnonymousSymbol.New(_currentAnonomyous++, () => _currentAnonomyous--);
 
         private bool GenerateCode(NodeId nodeId)
         {
@@ -42,16 +43,11 @@ namespace ByteRush.CodeGen
             PortId inputPortId
         )
         {
+            // TODO: This needs to account for constants
             ref readonly var output = ref NodeDef.GetEdge(currentNode.GetInput(inputPortId).GetEdge(EdgeId.New(0)))._output;
             if (GenerateCode(output.Node)) _generatedExpressions.Add(output.Node);
             return GetSymbol(OutputPortKey.New(output.Node, output.Port));
         }
-
-        // This will likely be called by exec nodes after they have evaluated all of their inputs.
-        // but before evaluating outputs. Should we evaluate inputs automatically and just give the results of the evaluations to
-        // the next exec node? That would put this call to FinishExpressions inside of GenerateExecForwords.
-        // Could GenerateDataback also automatically pass inputs to pure nodes?
-        
 
         public void GenerateExecForwards(
             in Node currentNode,
@@ -93,12 +89,11 @@ namespace ByteRush.CodeGen
             }
         }
 
-        private State()
+        private CodeOnlyState()
         {
-            _opWriter = new OpWriter();
             _currentAnonomyous = 0;
         }
 
-        public static State New() => new State();
+        public static CodeOnlyState New() => new CodeOnlyState();
     }
 }

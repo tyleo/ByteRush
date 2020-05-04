@@ -1,5 +1,6 @@
 ﻿using ByteRush.Utilities;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace ByteRush.Interpreter
 {
@@ -8,8 +9,8 @@ namespace ByteRush.Interpreter
         const int STACK_SIZE_VALUES = 10000;
 
         private int _instructionPointer;
-        private int _objectPointer;
         private int _stackPointer;
+        private byte[] _object;
 
         private readonly Value[] _stack = new Value[STACK_SIZE_VALUES];
         private readonly byte[][] _objects;
@@ -17,14 +18,14 @@ namespace ByteRush.Interpreter
         public VirtualMachine(byte[] @object)
         {
             _instructionPointer = 0;
-            _objectPointer = 0;
-            _stackPointer = -1;
+            _stackPointer = 0;
             _objects = new byte[][] { @object };
+            _object = _objects[0];
         }
 
         public void Execute()
         {
-            while (_instructionPointer < 500)
+            while (_instructionPointer < _object.Length)
             {
                 Step();
             }
@@ -33,156 +34,117 @@ namespace ByteRush.Interpreter
         public void Reset()
         {
             _instructionPointer = 0;
-            _objectPointer = 0;
-            _stackPointer = -1;
+            _stackPointer = 0;
+            _object = _objects[0];
         }
 
-        public void Step()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ref Value StackSlot(int offset) => ref _stack[_stackPointer - offset];
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void PushValue(Value value)
         {
-            var @object = _objects[_objectPointer];
-            var instruction = @object[_instructionPointer];
-            _instructionPointer++;
+            _stack[_stackPointer] = value;
+            _stackPointer++;
+        }
 
-            switch ((Op)instruction)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private Op ReadOp() => (Op)ReadU8();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int ReadOpCodeAddress() => ReadI32();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int ReadStackAddress() => ReadI32();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int ReadI32()
+        {
+            var result = ByteUtil.ReadI32(_object, _instructionPointer);
+            _instructionPointer += sizeof(int);
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private byte ReadU8()
+        {
+            var result = ByteUtil.ReadU8(_object, _instructionPointer);
+            _instructionPointer += sizeof(byte);
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ushort ReadU16()
+        {
+            var result = ByteUtil.ReadU16(_object, _instructionPointer);
+            _instructionPointer += sizeof(ushort);
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private Value ReadValue() => new Value(ReadI32());
+
+        private void Step()
+        {
+            var instruction = ReadOp();
+            switch (instruction)
             {
-                case Op.AddIntReg:
+                case Op.AddI32:
                     {
-                        var lhs = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer += sizeof(int);
-                        var rhs = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer += sizeof(int);
-                        var storeOffset = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer += sizeof(int);
-
-                        _stack[_stackPointer - storeOffset]._variant._int =
-                            _stack[_stackPointer - lhs]._variant._int + _stack[_stackPointer - rhs]._variant._int;
-                    }
-                    break;
-
-                case Op.AddIntStack:
-                    {
-                        var lhs = _stack[_stackPointer];
-                        _stackPointer--;
-                        var rhs = _stack[_stackPointer];
-                        _stack[_stackPointer]._variant._int = lhs._variant._int + rhs._variant._int;
+                        var lhsOffset = ReadStackAddress();
+                        var rhsOffset = ReadStackAddress();
+                        var returnOffset = ReadStackAddress();
+                        StackSlot(returnOffset)._i32 = StackSlot(lhsOffset)._i32 + StackSlot(rhsOffset)._i32;
                     }
                     break;
 
                 case Op.Copy:
                     {
-                        var fromOffset = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer += sizeof(int);
-                        var toOffset = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer += sizeof(int);
-
-                        _stack[_stackPointer - toOffset] = _stack[_stackPointer - fromOffset];
+                        var fromOffset = ReadStackAddress();
+                        var toOffset = ReadStackAddress();
+                        StackSlot(toOffset) = StackSlot(fromOffset);
                     }
                     break;
 
-                case Op.Get:
+                case Op.EnterFunction:
                     {
-                        var offset = @object[_instructionPointer];
+                        var stackSize = ReadU16();
 
-                        var value = _stack[_stackPointer - offset];
-                        _stackPointer++;
-                        _stack[_stackPointer] = value;
-
-                        _instructionPointer++;
+                        var newStackTop = _stackPointer + stackSize;
+                        while (_stackPointer < newStackTop) PushValue(ReadValue());
                     }
                     break;
 
                 case Op.Goto:
                     {
-                        var address = ByteUtil.ReadInt(@object, _instructionPointer);
+                        var address = ReadOpCodeAddress();
                         _instructionPointer = address;
                     }
                     break;
 
-                case Op.IncIntReg:
+                case Op.IncI32:
                     {
-                        var offset = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer += sizeof(int);
-                        _stack[_stackPointer - offset]._variant._int++;
-                    }
-                    break;
-
-                case Op.IncIntStack:
-                    {
-                        _stack[_stackPointer]._variant._int++;
+                        var intOffset = ReadI32();
+                        StackSlot(intOffset)._i32++;
                     }
                     break;
 
                 case Op.JumpIfFalse:
                     {
-                        var condition = _stack[_stackPointer];
-                        _stackPointer--;
+                        var conditionOffset = ReadStackAddress();
+                        var jumpAddress = ReadOpCodeAddress();
 
-                        if (condition._variant._bool)
-                        {
-                            // Skip the branch
-                            _instructionPointer += sizeof(int);
-                        }
-                        else
-                        {
-                            var address = ByteUtil.ReadInt(@object, _instructionPointer);
-                            _instructionPointer = address;
-                        }
+                        if (!StackSlot(conditionOffset)._bool) _instructionPointer = jumpAddress;
                     }
                     break;
 
-                case Op.LessThanRegPush:
+                case Op.LessThanI32:
                     {
-                        var lhsOffset = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer += sizeof(int);
-                        var rhsOffset = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer += sizeof(int);
+                        var lhsOffset = ReadStackAddress();
+                        var rhsOffset = ReadStackAddress();
+                        var returnOffset = ReadStackAddress();
 
-                        _stack[_stackPointer + 1]._variant._bool =
-                            _stack[_stackPointer - lhsOffset]._variant._int < _stack[_stackPointer - rhsOffset]._variant._int;
-                        _stackPointer++;
-                    }
-                    break;
-
-                case Op.LessThanStack:
-                    {
-                        var lhs = _stack[_stackPointer];
-                        _stackPointer--;
-                        var rhs = _stack[_stackPointer];
-                        _stack[_stackPointer]._variant._bool = lhs._variant._int < rhs._variant._int;
-                    }
-                    break;
-
-                case Op.PushBlock:
-                    {
-                        var size = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _instructionPointer += sizeof(int);
-                        for (var i = 0; i < size; ++i)
-                        {
-                            _stackPointer++;
-                            _stack[_stackPointer]._variant._int = ByteUtil.ReadInt(@object, _instructionPointer);
-                            _instructionPointer += sizeof(int);
-                        }
-                    }
-                    break;
-
-                case Op.PushInt:
-                    {
-                        var value = ByteUtil.ReadInt(@object, _instructionPointer);
-                        _stackPointer++;
-                        _stack[_stackPointer]._variant._int = value;
-                        _instructionPointer += sizeof(int);
-                    }
-                    break;
-
-                case Op.Set:
-                    {
-
-                        var offset = @object[_instructionPointer];
-
-                        _stack[_stackPointer - offset] = _stack[_stackPointer];
-                        _stackPointer--;
-
-                        _instructionPointer++;
+                        StackSlot(returnOffset)._bool = StackSlot(lhsOffset)._i32 < StackSlot(rhsOffset)._i32;
                     }
                     break;
 

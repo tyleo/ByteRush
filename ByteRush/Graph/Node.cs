@@ -7,7 +7,7 @@ namespace ByteRush.Graph
     {
         public NodeDeclId DeclId { get; }
         public string FullName { get; set; }
-        private ArrayList<Variant> _defaultValues;
+        private ArrayList<Value> _defaultValues;
 
         private ArrayList<Port> _inputs;
         public ref readonly Port GetInput(PortId id) => ref _inputs[id.Int];
@@ -20,7 +20,7 @@ namespace ByteRush.Graph
 
         public void GenerateCode(
             NodeId nodeId,
-            CodeGen.State state
+            CodeGen.CodeOnlyState state
         ) => state.GraphState.GetNodeDecl(DeclId).GenerateCode(nodeId, in this, state);
     }
 }

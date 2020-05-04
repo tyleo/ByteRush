@@ -1,7 +1,7 @@
 ﻿using ByteRush.Graph;
 using ByteRush.Utilities;
 
-using CodeGenState = ByteRush.CodeGen.State;
+using CodeGenState = ByteRush.CodeGen.CodeOnlyState;
 using GraphState = ByteRush.Graph.State;
 
 namespace ByteRunner
@@ -46,16 +46,18 @@ namespace ByteRunner
 // * Bucket ConstantSymbols, VariableSymbols and AnonymousSymbols
 // * Count the amount of symbols we have, symbol_base. Stack addresses written to the instruction stream will be top_of_stack - symbol_base + symbol_id
 // * We will primairly write symbol_base + symbol_id and subtract from top_of_stack in the VM
-// * Write all ConstantSymbols into the final instruction stream. Update the addresses in the old instruction stream.
-// * Write all VariableSymbols into the final instruction stream. Update the addresses in the old instruction stream.
-// * Write all AnonymousSymbols into the final instruction stream. Update the addresses in the old instruction stream.
 // * Write the (single) push instruction which allocates the stack. This instruction will be like:
 // [op][size][constants][size][variables]
+
 
 // Third pass (calculate jump addresses):
 // * Save the current address, this will be the instruction_base
 // * Copy the rest of the instruction stream into the final stream
 // * Instruction addresses are written to the instruction stream as instruction_base + goto_instruction_id
+
+// * Write all ConstantSymbols into the final instruction stream. Update the addresses in the old instruction stream.
+// * Write all VariableSymbols into the final instruction stream. Update the addresses in the old instruction stream.
+// * Write all AnonymousSymbols into the final instruction stream. Update the addresses in the old instruction stream.
 // * Write all of InstructionStreamInserter2s into their goto_address_locations
 
 // * Graph compilation of NodeDef (function)
@@ -109,3 +111,8 @@ namespace ByteRunner
 // 2) The node generates its code.
 // 3) All outputs are evaluated and branch results are returned.
 
+
+
+
+
+// Likely need to put objects in a separate stack

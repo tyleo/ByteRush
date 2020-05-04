@@ -7,8 +7,10 @@ using ByteRush.Graph;
 using System;
 using System.Diagnostics;
 
-using CodeGenState = ByteRush.CodeGen.State;
+using CodeGenState = ByteRush.CodeGen.CodeOnlyState;
 using GraphState = ByteRush.Graph.State;
+using ByteRush.Utilities;
+using System.Reflection.Metadata;
 
 namespace ByteRunner
 {
@@ -35,13 +37,13 @@ namespace ByteRunner
             ));
 
 
-            var opWriter = OpWriter.New();
-            var bytes = Register();
+            var opWriter = OpCodeWriter.New();
+            var bytes = Bytes();
             var vm = new VirtualMachine(bytes);
 
             var sw = Stopwatch.StartNew();
             vm.Execute();
-            var msResult = sw.ElapsedHighResolutionMilliseconds();
+                var msResult = sw.ElapsedHighResolutionMilliseconds();
             var frame60Result = sw.ElapsedHighResolutionFrame60s() * 100;
             Console.WriteLine($"{msResult} ms");
             Console.WriteLine($"{frame60Result} % frame");
@@ -54,106 +56,105 @@ namespace ByteRunner
             Console.WriteLine($"{frame60Result2} % frame");
         }
 
-        private static byte[] Base()
+        private static byte[] Bytes()
         {
-
-            var opWriter = OpWriter.New();
-            opWriter.OpPushInt(0);        // lastCurrent
-            opWriter.OpPushInt(0);        // current
-            opWriter.OpPushInt(1);        // next
-            opWriter.OpPushInt(0);        // i
-            opWriter.OpPushInt(5);        // iterations
-
-            var gotoAddr = opWriter.GetAddress();
-            opWriter.OpGet(0);            // Push iterations
-            opWriter.OpGet(2);            // Push 0
-            opWriter.OpLessThanStack();   // Push 0 < iterations
-            opWriter.OpJumpIfFalse()
-                .Write(1000);             // Goto 1000 if false
-            opWriter.OpGet(1);            // Get i
-            opWriter.OpIncIntStack();          // Inc i
-            opWriter.OpSet(2);            // Set i
-
-            opWriter.OpGet(3);            // Get current;
-            opWriter.OpSet(5);            // Set last = current
-
-            opWriter.OpGet(2);            // Get next;
-            opWriter.OpSet(4);            // Set current = next
-
-            opWriter.OpGet(4);            // Get lastCurrent
-            opWriter.OpGet(4);            // Get next
-            opWriter.OpAddIntStack();          // lastCurrent + next
-            opWriter.OpSet(3);            // next = lastCurrent + next
-
-            opWriter.OpGoto(gotoAddr);    // Goto top of loop
-
-            return opWriter.GetBytes();
-        }
-
-        private static byte[] PushBlock()
-        {
-
-            var opWriter = OpWriter.New();
-            opWriter.OpPushBlock(
-                0,                        // lastCurrent
-                0,                        // current
-                1,                        // next
-                0,                        // i
-                5                         // iterations
+            var preambleOpWriter = PreambleOpCodeWriter.New();
+            var (variables, anonymouses, constants) = preambleOpWriter.EnterFunction(
+                4,
+                1,
+                Util.NewArray(
+                    Value.I32(0),
+                    Value.I32(1),
+                    Value.I32(5)
+                )
             );
 
-            var gotoAddr = opWriter.GetAddress();
-            opWriter.OpGet(0);            // Push iterations
-            opWriter.OpGet(2);            // Push 0
-            opWriter.OpLessThanStack();   // Push 0 < iterations
-            opWriter.OpJumpIfFalse()
-                .Write(1000);             // Goto 1000 if false
-            opWriter.OpGet(1);            // Get i
-            opWriter.OpIncIntStack();          // Inc i
-            opWriter.OpSet(2);            // Set i
+            var varLastCurrent = variables[0];
+            var varCurrent = variables[1];
+            var varNext = variables[2];
+            var varI = variables[3];
 
-            opWriter.OpGet(3);            // Get current;
-            opWriter.OpSet(5);            // Set last = current
+            var anon0 = anonymouses[0];
 
-            opWriter.OpGet(2);            // Get next;
-            opWriter.OpSet(4);            // Set current = next
+            var const0 = constants[0];
+            var const1 = constants[1];
+            var const50 = constants[2];
 
-            opWriter.OpGet(4);            // Get lastCurrent
-            opWriter.OpGet(4);            // Get next
-            opWriter.OpAddIntStack();          // lastCurrent + next
-            opWriter.OpSet(3);            // next = lastCurrent + next
+            var opWriter = CodeOnlyOpCodeWriter.New();
 
-            opWriter.OpGoto(gotoAddr);    // Goto top of loop
+            var (_, copy0LastCurrent0Addr, copy0LastCurrentLastCurrentAddr) = opWriter.Copy();
+            // int lastCurrent = 0;
 
-            return opWriter.GetBytes();
-        }
+            var (_, copy0Current0Addr, copy0CurrentCurrentAddr) = opWriter.Copy();
+            // int current = 0;
 
-        private static byte[] Register()
-        {
+            var (_, copy1Next1Addr, copy1NextNextAddr) = opWriter.Copy();
+            // int next = 1;
 
-            var opWriter = OpWriter.New();
-            opWriter.OpPushBlock(
-                0,                            // lastCurrent
-                0,                            // current
-                1,                            // next
-                0,                            // i
-                5                             // iterations
-            );
+            var (_, copy0I0Addr, copy0IIAddr) = opWriter.Copy();
+            // int i = 0;
 
-            var gotoAddr = opWriter.GetAddress();
-            opWriter.OpLessThanRegPush(1, 0); // Push i < iterations
-            opWriter.OpJumpIfFalse()
-                .Write(1000);                 // Goto 1000 if false
 
-            opWriter.OpIncIntReg(1);          // i++
-            opWriter.OpCopy(3, 4);            // last = current
-            opWriter.OpCopy(2, 3);            // current = next
+            var (topOfLoop, lessThanLhs, lessThanRhs, lessThanReturn) = opWriter.LessThanI32();
+            // _0 = i < 50
 
-            opWriter.OpAddIntReg(4, 2, 2);    // lastCurrent + next
 
-            opWriter.OpGoto(gotoAddr);        // Goto top of loop
+            var (_, conditional, endAddress) = opWriter.JumpIfFalse();
+            // if (!_0) Goto End
 
-            return opWriter.GetBytes();
+            var (_, copyCurrentLastCurrentCurrentAddr, copyCurrentLastCurrentLastCurrentAddr) = opWriter.Copy();
+            // lastCurrent = current;
+
+            var (_, copyNextCurrentNextAddr, copyNextCurrentCurrentAddr) = opWriter.Copy();
+            // current = next;
+
+            var (_, addLastCurrentNextNextLhs, addLastCurrentNextNextRhs, addLastCurrentNextNextReturn) = opWriter.AddI32();
+            // next = lastCurrent + next;
+
+            var (_, incI) = opWriter.IncI32();
+            // i++
+
+
+            var (_, bottomOfLoop) = opWriter.Goto();
+            // goto _0 = i < iterations;
+
+
+            var finalOpWriter = FinalOpCodeWriter.From(preambleOpWriter, opWriter);
+
+            finalOpWriter.WriteAddress(const0, copy0LastCurrent0Addr);
+            finalOpWriter.WriteAddress(varLastCurrent, copy0LastCurrentLastCurrentAddr);
+
+            finalOpWriter.WriteAddress(const0, copy0Current0Addr);
+            finalOpWriter.WriteAddress(varCurrent, copy0CurrentCurrentAddr);
+
+            finalOpWriter.WriteAddress(const1, copy1Next1Addr);
+            finalOpWriter.WriteAddress(varNext, copy1NextNextAddr);
+
+            finalOpWriter.WriteAddress(const0, copy0I0Addr);
+            finalOpWriter.WriteAddress(varI, copy0IIAddr);
+
+            finalOpWriter.WriteAddress(varI, lessThanLhs.ToValue());
+            finalOpWriter.WriteAddress(const50, lessThanRhs.ToValue());
+            finalOpWriter.WriteAddress(anon0, lessThanReturn.ToValue());
+
+            finalOpWriter.WriteAddress(anon0, conditional.ToValue());
+            finalOpWriter.WriteAddress(FinalOpCodeAddress.EndOfProgram, endAddress);
+
+            finalOpWriter.WriteAddress(varCurrent, copyCurrentLastCurrentCurrentAddr);
+            finalOpWriter.WriteAddress(varLastCurrent, copyCurrentLastCurrentLastCurrentAddr);
+
+            finalOpWriter.WriteAddress(varNext, copyNextCurrentNextAddr);
+            finalOpWriter.WriteAddress(varCurrent, copyNextCurrentCurrentAddr);
+
+            finalOpWriter.WriteAddress(varLastCurrent, addLastCurrentNextNextLhs.ToValue());
+            finalOpWriter.WriteAddress(varNext, addLastCurrentNextNextRhs.ToValue());
+            finalOpWriter.WriteAddress(varNext, addLastCurrentNextNextReturn.ToValue());
+
+            finalOpWriter.WriteAddress(varI, incI.ToValue());
+
+            finalOpWriter.WriteAddress(topOfLoop, bottomOfLoop);
+
+            return finalOpWriter.GetOpCode();
         }
     }
 }

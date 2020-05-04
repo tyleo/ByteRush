@@ -5,18 +5,16 @@ namespace ByteRush.Graph
 {
     public struct PortId : IEquatable<PortId>
     {
-        private readonly int _value;
-
-        private PortId(int value) => _value = value;
+        private PortId(int value) => Int = value;
 
         public static PortId New(int value) => new PortId(value);
 
-        public bool Equals(PortId other) => _value == other._value;
+        public bool Equals(PortId other) => Int == other.Int;
 
         public override bool Equals(object obj) => this.EquatableEquals(obj);
 
-        public override int GetHashCode() => _value;
+        public override int GetHashCode() => Int;
 
-        internal int Int => _value;
+        internal int Int { get; }
     }
 }

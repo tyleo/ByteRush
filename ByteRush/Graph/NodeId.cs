@@ -5,18 +5,16 @@ namespace ByteRush.Graph
 {
     public struct NodeId : IEquatable<NodeId>
     {
-        private readonly int _value;
-
-        private NodeId(int value) => _value = value;
+        private NodeId(int value) => Int = value;
 
         public static NodeId New(int value) => new NodeId(value);
 
-        public bool Equals(NodeId other) => _value == other._value;
+        public bool Equals(NodeId other) => Int == other.Int;
 
         public override bool Equals(object obj) => this.EquatableEquals(obj);
 
-        public override int GetHashCode() => _value;
+        public override int GetHashCode() => Int;
 
-        public int Int => _value;
+        public int Int { get; }
     }
 }

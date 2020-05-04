@@ -13,7 +13,7 @@ namespace ByteRush.Graph
         void GenerateCode(
             NodeId nodeId,
             in Node node,
-            CodeGen.State state
+            CodeGen.CodeOnlyState state
         );
     }
 }

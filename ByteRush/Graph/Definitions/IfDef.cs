@@ -13,7 +13,7 @@ namespace ByteRush.Graph.Definitions
 
         public static IfDef New() => new IfDef();
 
-        public override void GenerateCode(NodeId nodeId, in Node node, CodeGen.State state)
+        public override void GenerateCode(NodeId nodeId, in Node node, CodeGen.CodeOnlyState state)
         {
             throw new System.NotImplementedException();
         }

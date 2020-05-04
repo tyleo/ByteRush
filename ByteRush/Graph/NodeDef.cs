@@ -21,7 +21,7 @@ namespace ByteRush.Graph
         public void GenerateCode(
             NodeId nodeId,
             in Node node,
-            CodeGen.State state
+            CodeGen.CodeOnlyState state
         )
         {
             throw new System.NotImplementedException();

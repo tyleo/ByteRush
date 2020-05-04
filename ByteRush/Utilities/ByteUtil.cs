@@ -31,20 +31,10 @@ namespace ByteRush.Utilities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte ReadByte(byte[] bytes, int index) => bytes[index];
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ReadBool(byte[] bytes, int index) => new BoolByte(bytes[index])._bool;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReadInt(byte[] bytes, int index) =>
-            bytes[index + 0] << 0 |
-            bytes[index + 1] << 8 |
-            bytes[index + 2] << 16 |
-            bytes[index + 3] << 24;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ReadFloat(byte[] bytes, int index)
+        public static float ReadF32(byte[] bytes, int index)
         {
             var intValue = bytes[index + 0] << 0 |
             bytes[index + 1] << 8 |
@@ -52,6 +42,23 @@ namespace ByteRush.Utilities
             bytes[index + 3] << 24;
             return new FloatInt(intValue)._float;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ReadI32(byte[] bytes, int index) =>
+            bytes[index + 0] << 0 |
+            bytes[index + 1] << 8 |
+            bytes[index + 2] << 16 |
+            bytes[index + 3] << 24;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte ReadU8(byte[] bytes, int index) => bytes[index];
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort ReadU16(byte[] bytes, int index) =>
+            (ushort)(
+                bytes[index + 0] << 0 |
+                bytes[index + 1] << 8
+            );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteBool(byte[] bytes, int index, bool value) => bytes[index] = new BoolByte(value)._byte;
@@ -77,6 +84,13 @@ namespace ByteRush.Utilities
             bytes[index + 1] = (value >> 8).Byte();
             bytes[index + 2] = (value >> 16).Byte();
             bytes[index + 3] = (value >> 24).Byte();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteU16(byte[] bytes, int index, ushort value)
+        {
+            bytes[index + 0] = (value >> 0).Byte();
+            bytes[index + 1] = (value >> 8).Byte();
         }
     }
 }

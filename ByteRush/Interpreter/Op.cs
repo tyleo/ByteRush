@@ -3,26 +3,13 @@
     public enum Op :
         byte
     {
-        AddInt,
+        AddI32,
         Copy,
+        EnterFunction,
         Goto,
-        IncIntReg,
+        IncI32,
         JumpIfFalse,
-        LessThanRegPush,
-
-        Get,
-        Set,
-
-
-        // This may not be any faster than individual pushes.
-        PushBlock,
-
-        // Retired?
-        AddIntReg,
-        AddIntStack,
-        IncIntStack,
-        LessThanStack,
-        PushInt
+        LessThanI32,
     }
 
     public static class OpCodeExtensions
