@@ -5,26 +5,26 @@ namespace ByteRush.Graph
 {
     public struct OutputPortKey : IEquatable<OutputPortKey>
     {
-        private readonly NodeId _nodeId;
-        private readonly PortId _portId;
+        public NodeId Node { get; }
+        public PortId Port { get; }
 
         private OutputPortKey(NodeId nodeId, PortId portId)
         {
-            _nodeId = nodeId;
-            _portId = portId;
+            Node = nodeId;
+            Port = portId;
         }
 
         public static OutputPortKey New(NodeId nodeId, PortId portId) =>
             new OutputPortKey(nodeId, portId);
 
         public bool Equals(OutputPortKey other) =>
-            _nodeId.Equals(other._nodeId) &&
-            _portId.Equals(other._portId);
+            Node.Equals(other.Node) &&
+            Port.Equals(other.Port);
 
         public override bool Equals(object obj) => this.EquatableEquals(obj);
 
         public override int GetHashCode() =>
-            _nodeId.GetHashCode() ^
-            _portId.GetHashCode();
+            Node.GetHashCode() ^
+            Port.GetHashCode();
     }
 }

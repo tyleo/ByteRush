@@ -9,12 +9,14 @@ namespace ByteRush.CodeGen
     // Markers
     public struct MBool { }
     public struct MFinalOpCodeAddress<T> { }
+    public struct MF32 { }
     public struct MI32 { }
     public struct MOpCode { }
     public struct MOpCodeOnlyAddress<T> { }
     public struct MStackAddress<T> { }
     public struct MU8 { }
     public struct MU16 { }
+    public struct MUnknown { }
     public struct MValue { }
 
     public struct StackAddress<T> : IEquatable<StackAddress<T>>
@@ -60,8 +62,13 @@ namespace ByteRush.CodeGen
     {
         public static OpCodeOnlyAddress<T> New<T>(int value) => OpCodeOnlyAddress<T>.New(value);
         public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MBool>> self) => self.Mark< MStackAddress<MValue>>();
+        public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MF32>> self) => self.Mark< MStackAddress<MValue>>();
         public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MI32>> self) => self.Mark< MStackAddress<MValue>>();
         public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MU8>> self) => self.Mark< MStackAddress<MValue>>();
+        public static OpCodeOnlyAddress<MStackAddress<MBool>> ToBool(this OpCodeOnlyAddress<MStackAddress<MValue>> self) => self.Mark<MStackAddress<MBool>>();
+        public static OpCodeOnlyAddress<MStackAddress<MF32>> ToF32(this OpCodeOnlyAddress<MStackAddress<MValue>> self) => self.Mark<MStackAddress<MF32>>();
+        public static OpCodeOnlyAddress<MStackAddress<MI32>> ToI32(this OpCodeOnlyAddress<MStackAddress<MValue>> self) => self.Mark<MStackAddress<MI32>>();
+        public static OpCodeOnlyAddress<MStackAddress<MU8>> ToU8(this OpCodeOnlyAddress<MStackAddress<MValue>> self) => self.Mark<MStackAddress<MU8>>();
     }
 
     public struct PreambleAddress<T> : IEquatable<PreambleAddress<T>>
@@ -119,50 +126,39 @@ namespace ByteRush.CodeGen
         public static FinalOpCodeAddress<T> New<T>(int value) => FinalOpCodeAddress<T>.New(value);
     }
 
-    public struct InstructionStreamInserter
+    public interface ISymbol<T>
     {
-        private readonly int _address;
-    }
-
-    public interface IStackAddressInserter
-    {
-        
-    }
-
-    public sealed class ConstantAddressInserter : IStackAddressInserter
-    {
-        private readonly InstructionStreamInserter _writeLocation;
-    }
-
-    public sealed class VariableAddressInserter : IStackAddressInserter
-    {
-        private readonly InstructionStreamInserter _writeLocation;
-    }
-
-    public interface ISymbol
-    {
+        ISymbol<U> Mark<U>();
         void Release();
     }
 
-    public sealed class ConstantSymbol : ISymbol
+    public sealed class ConstantSymbol<T> : ISymbol<T>
     {
-        private readonly (TypeKind, Value) inner;
+        private readonly (TypeKind, Value) _inner;
+
+        private ConstantSymbol((TypeKind, Value) inner) => _inner = inner;
+
+        public static ConstantSymbol<T> New((TypeKind, Value) inner) => new ConstantSymbol<T>(inner);
+
+        public ISymbol<U> Mark<U>() => ConstantSymbol<U>.New(_inner);
 
         public void Release() { }
     }
 
-    public sealed class VariableSymbol : ISymbol
+    public sealed class VariableSymbol<T> : ISymbol<T>
     {
         private readonly string _inner;
 
         private VariableSymbol(string inner) => _inner = inner;
 
-        public static VariableSymbol New(string inner) => new VariableSymbol(inner);
+        public static VariableSymbol<T> New(string inner) => new VariableSymbol<T>(inner);
+
+        public ISymbol<U> Mark<U>() => VariableSymbol<U>.New(_inner);
 
         public void Release() { }
     }
 
-    public sealed class AnonymousSymbol : ISymbol
+    public sealed class AnonymousSymbol<T> : ISymbol<T>
     {
         private readonly int _inner;
         private readonly System.Action _release;
@@ -173,14 +169,45 @@ namespace ByteRush.CodeGen
             _release = release;
         }
 
-        public static AnonymousSymbol New(int inner, System.Action release) => new AnonymousSymbol(inner, release);
+        public static AnonymousSymbol<T> New(int inner, System.Action release) => new AnonymousSymbol<T>(inner, release);
+
+        public ISymbol<U> Mark<U>() => AnonymousSymbol<U>.New(_inner, _release);
 
         public void Release() => _release?.Invoke();
     }
 
-    public sealed class AddressRequests
+    public struct PendingOpCodeOnlyStackAddressWrite<T>
     {
-        // Seen constant addresses and the locations they need to be inserted.
-        Dictionary<ISymbol, ArrayList<IStackAddressInserter>> stackAddressRequests;
+        public ISymbol<T> Symbol { get; }
+        public OpCodeOnlyAddress<MStackAddress<T>> WriteLocation { get; }
+
+        private PendingOpCodeOnlyStackAddressWrite(ISymbol<T> symbol, OpCodeOnlyAddress<MStackAddress<T>> writeLocation)
+        {
+            Symbol = symbol;
+            WriteLocation = writeLocation;
+        }
+
+        public static PendingOpCodeOnlyStackAddressWrite<T> New(ISymbol<T> symbol, OpCodeOnlyAddress<MStackAddress<T>> writeLocation) =>
+            new PendingOpCodeOnlyStackAddressWrite<T>(symbol, writeLocation);
+    }
+
+    public struct PendingOpCodeOnlyOpCodeAddressWrite
+    {
+        public OpCodeOnlyAddress<MOpCode> Address { get; }
+        public OpCodeOnlyAddress<MFinalOpCodeAddress<MOpCode>> WriteLocation { get; }
+
+        private PendingOpCodeOnlyOpCodeAddressWrite(
+            OpCodeOnlyAddress<MOpCode> address,
+            OpCodeOnlyAddress<MFinalOpCodeAddress<MOpCode>> writeLocation
+        )
+        {
+            Address = address;
+            WriteLocation = writeLocation;
+        }
+
+        public static PendingOpCodeOnlyOpCodeAddressWrite New(
+            OpCodeOnlyAddress<MOpCode> address,
+            OpCodeOnlyAddress<MFinalOpCodeAddress<MOpCode>> writeLocation
+        ) => new PendingOpCodeOnlyOpCodeAddressWrite(address, writeLocation);
     }
 }

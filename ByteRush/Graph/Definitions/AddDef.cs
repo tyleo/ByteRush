@@ -1,10 +1,11 @@
-﻿using ByteRush.Utilities;
+﻿using ByteRush.CodeGen;
+using ByteRush.Utilities;
 
 namespace ByteRush.Graph.Definitions
 {
     public sealed class AddDef : OpDef
     {
-        public override string Name => "If";
+        public override string Name => "Add";
 
         private AddDef() : base(
             Util.NewArray(PortDecl.New("lhs", TypeKind.I32), PortDecl.New("lhs", TypeKind.I32)),
@@ -16,20 +17,22 @@ namespace ByteRush.Graph.Definitions
         public override void GenerateCode(
             NodeId nodeId,
             in Node node,
-            CodeGen.CodeOnlyState state
+            CodeOnlyState state
         )
         {
-            var lhsSym = state.GenerateDataBack(in node, PortId.New(0));
-            var rhsSym = state.GenerateDataBack(in node, PortId.New(1));
+            var lhsSym = state.GenerateDataBack<MI32>(in node, PortId.New(0));
+            var rhsSym = state.GenerateDataBack<MI32>(in node, PortId.New(1));
 
             lhsSym.Release();
             rhsSym.Release();
-            var returnSym = state.RetainAnonomyous();
 
-            var (_, from, to, @return) = state.OpWriter.AddI32();
-            // TODO: Need to relate these InstructionStreamIndexes to Symbols and store
-            // InstructionStreamWriters in _allSymbols. Then when creating the instruction stream
-            // is done the resolved symbols can be written back into the instruction stream.
+            var (_, lhs, rhs, @return) = state.OpWriter.AddI32();
+
+            var returnSym = state.RetainAnonomyous<MI32>();
+
+            state.QueueSymbolAddressWrite(lhsSym, lhs);
+            state.QueueSymbolAddressWrite(rhsSym, rhs);
+            state.QueueSymbolAddressWrite(returnSym, @return);
 
             state.SetOutputSymbol(OutputPortKey.New(nodeId, PortId.New(0)), returnSym);
         }

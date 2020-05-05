@@ -7,7 +7,9 @@ namespace ByteRush.Graph
     {
         public NodeDeclId DeclId { get; }
         public string FullName { get; set; }
+
         private ArrayList<Value> _defaultValues;
+        public ref readonly Value GetDefaultValue(PortId id) => ref _defaultValues[id.Int];
 
         private ArrayList<Port> _inputs;
         public ref readonly Port GetInput(PortId id) => ref _inputs[id.Int];
@@ -16,7 +18,8 @@ namespace ByteRush.Graph
         public ref readonly Port GetOutput(PortId id) => ref _outputs[id.Int];
 
         // Stuff like num ports in an array node goes in here
-        public object Meta { get; set; }
+        private object _meta;
+        public T Meta<T>() => (T)_meta;
 
         public void GenerateCode(
             NodeId nodeId,

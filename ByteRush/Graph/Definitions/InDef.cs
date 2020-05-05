@@ -16,16 +16,17 @@ namespace ByteRush.Graph.Definitions
         public void GenerateCode(
             NodeId nodeId,
             in Node node,
-            CodeGen.CodeOnlyState state
+            CodeOnlyState state
         )
         {
+            // TODO: This is likely broken
             var outputs = GetOutputs(state.NodeDef);
             foreach (var (output, portId) in outputs.Enumerate())
             {
                 if (output.Type == TypeKind.Exec) continue;
                 state.SetOutputSymbol(
                     OutputPortKey.New(nodeId, PortId.New(portId)),
-                    VariableSymbol.New(output.Name)
+                    VariableSymbol<MValue>.New(output.Name)
                 );
             }
 

@@ -2,7 +2,7 @@
 {
     public struct Edge
     {
-        public readonly InputOutputKey _input;
-        public readonly InputOutputKey _output;
+        public readonly InputPortKey _input;
+        public readonly OutputPortKey _output;
     }
 }

@@ -13,6 +13,8 @@ namespace ByteRush.CodeGen
 
         public static CodeOnlyOpCodeWriter New() => new CodeOnlyOpCodeWriter();
 
+        public OpCodeOnlyAddress<MOpCode> GetAddress() => OpCodeOnlyAddress<MOpCode>.New(_opWriter.GetAddress());
+
         public byte[] GetOpCode() => _opWriter.GetOpCode();
 
         public (

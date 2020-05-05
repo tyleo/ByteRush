@@ -7,7 +7,7 @@ namespace ByteRush.Graph
     {
         private readonly ArrayList<INodeDecl> _nodeDecls;
 
-        public ref INodeDecl GetNodeDecl(NodeDeclId i) => ref _nodeDecls[i.Int];
+        public INodeDecl GetNodeDecl(NodeDeclId i) => _nodeDecls[i.Int];
 
         private State(
             ArrayList<INodeDecl> nodeDecls
