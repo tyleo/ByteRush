@@ -3,13 +3,13 @@ using System;
 
 namespace ByteRush.Graph
 {
-    public struct PortId : IEquatable<PortId>
+    public struct InputPortId : IEquatable<InputPortId>
     {
-        private PortId(int value) => Int = value;
+        private InputPortId(int value) => Int = value;
 
-        public static PortId New(int value) => new PortId(value);
+        public static InputPortId New(int value) => new InputPortId(value);
 
-        public bool Equals(PortId other) => Int == other.Int;
+        public bool Equals(InputPortId other) => Int == other.Int;
 
         public override bool Equals(object obj) => this.EquatableEquals(obj);
 

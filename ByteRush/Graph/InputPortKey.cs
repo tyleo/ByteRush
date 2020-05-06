@@ -6,15 +6,15 @@ namespace ByteRush.Graph
     public struct InputPortKey : IEquatable<InputPortKey>
     {
         public NodeId Node { get; }
-        public PortId Port { get; }
+        public InputPortId Port { get; }
 
-        private InputPortKey(NodeId nodeId, PortId portId)
+        private InputPortKey(NodeId nodeId, InputPortId portId)
         {
             Node = nodeId;
             Port = portId;
         }
 
-        public static InputPortKey New(NodeId nodeId, PortId portId) =>
+        public static InputPortKey New(NodeId nodeId, InputPortId portId) =>
             new InputPortKey(nodeId, portId);
 
         public bool Equals(InputPortKey other) =>

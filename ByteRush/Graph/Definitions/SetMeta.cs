@@ -2,6 +2,10 @@
 {
     public sealed class SetMeta
     {
-        public string VariableName { get; }
+        public string VariableName { get; set; }
+
+        private SetMeta() { }
+
+        public static SetMeta New() => new SetMeta();
     }
 }

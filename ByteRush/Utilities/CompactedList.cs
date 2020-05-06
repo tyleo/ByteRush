@@ -7,6 +7,9 @@ namespace ByteRush.Utilities
         private readonly ArrayList<T> _inner = ArrayList<T>.New();
         private readonly Indexer _indexer = new Indexer();
 
+        private CompactedList() { }
+        public static CompactedList<T> New() => new CompactedList<T>();
+
         public int Add(T item)
         {
             var index = _indexer.GetIndex();

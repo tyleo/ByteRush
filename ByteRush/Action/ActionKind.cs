@@ -2,6 +2,10 @@
 {
     public enum ActionKind
     {
-        AddNodeDecls
+        AddEdge,
+        AddNode,
+        AddNodeDecls,
+        SetDefaultValue,
+        SetSetMetaName
     }
 }

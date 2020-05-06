@@ -13,6 +13,8 @@ namespace ByteRush.Graph.Definitions
 
         public IReadOnlyList<PortDecl> GetOutputs(NodeDef nodeDef) => nodeDef.GetInputs(nodeDef);
 
+        public object DefaultMeta() => null;
+
         public void GenerateCode(
             NodeId nodeId,
             in Node node,
@@ -25,7 +27,7 @@ namespace ByteRush.Graph.Definitions
             {
                 if (output.Type == TypeKind.Exec) continue;
                 state.SetOutputSymbol(
-                    OutputPortKey.New(nodeId, PortId.New(portId)),
+                    OutputPortKey.New(nodeId, OutputPortId.New(portId)),
                     ParameterSymbol<MValue>.New(index)
                 );
                 index++;
@@ -34,7 +36,7 @@ namespace ByteRush.Graph.Definitions
             // Impure Function
             if (outputs.Any() && outputs.First().Type == TypeKind.Exec)
             {
-                state.GenerateExecForwards(in node, PortId.New(0));
+                state.GenerateExecForwards(in node, OutputPortId.New(0));
             }
         }
     }

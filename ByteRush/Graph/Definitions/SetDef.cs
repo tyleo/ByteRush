@@ -3,7 +3,7 @@ using ByteRush.Utilities;
 
 namespace ByteRush.Graph.Definitions
 {
-    public sealed class SetDef : OpDef
+    public sealed class SetDef : SimpleDef<SetMeta>
     {
         public override string Name => "Set";
 
@@ -15,13 +15,15 @@ namespace ByteRush.Graph.Definitions
 
         public static SetDef New() => new SetDef();
 
+        protected override SetMeta DefaultMetaTyped() => SetMeta.New();
+
         public override void GenerateCode(
             NodeId nodeId,
             in Node node,
             CodeOnlyState state
         )
         {
-            var valueSym = state.GenerateDataBack<MI32>(in node, PortId.New(1));
+            var valueSym = state.GenerateDataBack<MI32>(in node, InputPortId.New(1));
 
             valueSym.Release();
 
@@ -33,7 +35,7 @@ namespace ByteRush.Graph.Definitions
                 to.ToI32()
             );
 
-            state.GenerateExecForwards(in node, PortId.New(0));
+            state.GenerateExecForwards(in node, OutputPortId.New(0));
         }
     }
 }

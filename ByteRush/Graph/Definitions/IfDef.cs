@@ -3,7 +3,7 @@ using ByteRush.Utilities;
 
 namespace ByteRush.Graph.Definitions
 {
-    public sealed class IfDef : OpDef
+    public sealed class IfDef : SimpleDef
     {
         public override string Name => "If";
 
@@ -16,19 +16,19 @@ namespace ByteRush.Graph.Definitions
 
         public override void GenerateCode(NodeId nodeId, in Node node, CodeOnlyState state)
         {
-            var conditionSym = state.GenerateDataBack<MBool>(in node, PortId.New(1));
+            var conditionSym = state.GenerateDataBack<MBool>(in node, InputPortId.New(1));
 
             conditionSym.Release();
 
             var (_, condition, jumpAddress) = state.OpWriter.JumpIfFalse();
 
-            state.GenerateExecForwards(in node, PortId.New(0));
+            state.GenerateExecForwards(in node, OutputPortId.New(0));
 
             var (_, gotoAddress) = state.OpWriter.Goto();
 
             var jumpTo = state.OpWriter.GetAddress();
 
-            var next = state.GenerateExecForwards(in node, PortId.New(1));
+            var next = state.GenerateExecForwards(in node, OutputPortId.New(1));
 
             var end = state.OpWriter.GetAddress();
 

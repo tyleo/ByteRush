@@ -10,6 +10,8 @@ namespace ByteRush.Graph
 
         IReadOnlyList<PortDecl> GetOutputs(NodeDef nodeDef);
 
+        object DefaultMeta();
+
         void GenerateCode(
             NodeId nodeId,
             in Node node,

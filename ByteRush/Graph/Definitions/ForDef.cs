@@ -3,7 +3,7 @@ using ByteRush.Utilities;
 
 namespace ByteRush.Graph.Definitions
 {
-    public sealed class ForDef : OpDef
+    public sealed class ForDef : SimpleDef
     {
         public override string Name => "For";
 
@@ -25,30 +25,31 @@ namespace ByteRush.Graph.Definitions
 
         public override void GenerateCode(NodeId nodeId, in Node node, CodeOnlyState state)
         {
-            var startSym = state.GenerateDataBack<MI32>(in node, PortId.New(1));
+            var startSym = state.GenerateDataBack<MI32>(in node, InputPortId.New(1));
             startSym.Release();
 
-            var iUsageEdges = node.GetOutput(PortId.New(1)).EdgeCount;
+            var iUsageEdges = node.GetOutput(OutputPortId.New(1)).EdgeCount;
             var iSym = state.RetainAnonomyous<MI32>(iUsageEdges + 1);
 
             var (_, from, to) = state.OpWriter.Copy();
 
             var top = state.OpWriter.GetAddress();
 
-            var endSym = state.GenerateDataBack<MI32>(in node, PortId.New(2));
+            var endSym = state.GenerateDataBack<MI32>(in node, InputPortId.New(2));
             endSym.Release();
 
-            var isLessThanSym = state.RetainAnonomyous<MBool>(0);
+            var isLessThanSym = state.RetainAnonomyous<MBool>(1);
 
             var (_, lhs, rhs, isLessThan) = state.OpWriter.LessThanI32();
             var (_, condition, gotoEnd) = state.OpWriter.JumpIfFalse();
 
-            state.GenerateExecForwards(in node, PortId.New(0));
+            state.GenerateExecForwards(in node, OutputPortId.New(0));
 
             var (_, incI) = state.OpWriter.IncI32();
             var (_, gotoStart) = state.OpWriter.Goto();
 
             iSym.Release();
+            isLessThanSym.Release();
 
             var bottom = state.OpWriter.GetAddress();
 
@@ -63,8 +64,8 @@ namespace ByteRush.Graph.Definitions
             state.QueueOpCodeAddressWrite(top, gotoStart);
             state.QueueOpCodeAddressWrite(bottom, gotoEnd);
 
-            state.SetOutputSymbol(OutputPortKey.New(nodeId, PortId.New(1)), iSym);
-            state.GenerateExecForwards(in node, PortId.New(2));
+            state.SetOutputSymbol(OutputPortKey.New(nodeId, OutputPortId.New(1)), iSym);
+            state.GenerateExecForwards(in node, OutputPortId.New(2));
         }
     }
 }

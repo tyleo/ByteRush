@@ -77,7 +77,7 @@ namespace ByteRush.CodeGen
 
         public ISymbol<T> GenerateDataBack<T>(
             in Node currentNode,
-            PortId inputPortId
+            InputPortId inputPortId
         )
         {
             ref readonly var inputPort = ref currentNode.GetInput(inputPortId);
@@ -87,7 +87,7 @@ namespace ByteRush.CodeGen
                 return ConstantSymbol<T>.New((inputPort.Type, currentNode.GetDefaultValue(inputPortId)));
             }
 
-            ref readonly var outputPort = ref NodeDef.GetEdge(inputPort.GetEdge(EdgeId.New(0)))._output;
+            ref readonly var outputPort = ref NodeDef.GetEdge(inputPort.GetEdge(EdgeId.New(0)))._from;
 
             if (!_generatedNodes.Contains(outputPort.Node))
             {
@@ -107,7 +107,7 @@ namespace ByteRush.CodeGen
 
         public System.Action GenerateExecForwards(
             in Node currentNode,
-            PortId outputPortId
+            OutputPortId outputPortId
         )
         {
             ref readonly var outputPort = ref currentNode.GetOutput(outputPortId);
@@ -129,7 +129,7 @@ namespace ByteRush.CodeGen
                 _generatedExpressions.Clear();
             }
 
-            ref readonly var inputEdge = ref NodeDef.GetEdge(outputPort.GetEdge(EdgeId.New(0)))._input;
+            ref readonly var inputEdge = ref NodeDef.GetEdge(outputPort.GetEdge(EdgeId.New(0)))._to;
             var nextNodeId = inputEdge.Node;
             ref readonly var nextNode = ref NodeDef.GetNode(inputEdge.Node);
             ref readonly var nextPort = ref nextNode.GetInput(inputEdge.Port);
