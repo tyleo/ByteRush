@@ -19,15 +19,16 @@ namespace ByteRush.Graph.Definitions
             CodeOnlyState state
         )
         {
-            // TODO: This is likely broken
             var outputs = GetOutputs(state.NodeDef);
+            int index = 0;
             foreach (var (output, portId) in outputs.Enumerate())
             {
                 if (output.Type == TypeKind.Exec) continue;
                 state.SetOutputSymbol(
                     OutputPortKey.New(nodeId, PortId.New(portId)),
-                    VariableSymbol<MValue>.New(output.Name)
+                    ParameterSymbol<MValue>.New(index)
                 );
+                index++;
             }
 
             // Impure Function

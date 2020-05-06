@@ -31,10 +31,7 @@ namespace ByteRunner
 
         private static void Main(string[] args)
         {
-            var state = GraphState.New();
-            state.Reduce(AddNodeDecls.New(
-                IfDef.New()
-            ));
+            
 
 
             var opWriter = OpCodeWriter.New();
@@ -43,7 +40,7 @@ namespace ByteRunner
 
             var sw = Stopwatch.StartNew();
             vm.Execute();
-                var msResult = sw.ElapsedHighResolutionMilliseconds();
+            var msResult = sw.ElapsedHighResolutionMilliseconds();
             var frame60Result = sw.ElapsedHighResolutionFrame60s() * 100;
             Console.WriteLine($"{msResult} ms");
             Console.WriteLine($"{frame60Result} % frame");
@@ -155,6 +152,20 @@ namespace ByteRunner
             finalOpWriter.WriteAddress(topOfLoop, bottomOfLoop);
 
             return finalOpWriter.GetOpCode();
+        }
+
+        private static byte[] Compiled()
+        {
+            var state = GraphState.New();
+            state.Reduce(AddNodeDecls.New(
+                AddDef.New(),
+                ForDef.New(),
+                IfDef.New(),
+                LessThanDef.New(),
+                SetDef.New()
+            ));
+
+            return Array.Empty<byte>();
         }
     }
 }

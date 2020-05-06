@@ -1,4 +1,5 @@
 ﻿using ByteRush.Graph;
+using ByteRush.Utilities;
 using ByteRush.Utilities.Extensions;
 using System;
 using System.Collections;
@@ -32,7 +33,7 @@ namespace ByteRush.CodeGen
         private readonly IDictionary<InputPortKey, int> _execBranchMergePoints = new Dictionary<InputPortKey, int>();
 
 
-        private int _currentAnonomyous = 0;
+        private Indexer _anonomyousGenerator = new Indexer();
 
 
         public void QueueSymbolAddressWrite(ISymbol<MBool> symbol, OpCodeOnlyAddress<MStackAddress<MBool>> writeLocation) =>
@@ -53,7 +54,14 @@ namespace ByteRush.CodeGen
         private ISymbol<T> GetOutputSymbol<T>(OutputPortKey key) => _currentOutputSymbolValues[key].Mark<T>();
 
 
-        public ISymbol<T> RetainAnonomyous<T>() => AnonymousSymbol<T>.New(_currentAnonomyous++, () => _currentAnonomyous--);
+        public ISymbol<T> RetainAnonomyous<T>(int uses)
+        {
+            var index = _anonomyousGenerator.GetIndex();
+            void Free() => _anonomyousGenerator.FreeIndex(index);
+            var result = AnonymousSymbol<T>.New(index, uses, Free);
+            if (uses == 0) Free();
+            return result;
+        }
 
 
         public void QueueOpCodeAddressWrite(OpCodeOnlyAddress<MOpCode> address, OpCodeOnlyAddress<MFinalOpCodeAddress<MOpCode>> writeLocation) =>

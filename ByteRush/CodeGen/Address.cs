@@ -132,6 +132,19 @@ namespace ByteRush.CodeGen
         void Release();
     }
 
+    public sealed class ParameterSymbol<T> : ISymbol<T>
+    {
+        private readonly int _inner;
+
+        private ParameterSymbol(int inner) => _inner = inner;
+
+        public static ParameterSymbol<T> New(int inner) => new ParameterSymbol<T>(inner);
+
+        public ISymbol<U> Mark<U>() => ParameterSymbol<U>.New(_inner);
+
+        public void Release() { }
+    }
+
     public sealed class ConstantSymbol<T> : ISymbol<T>
     {
         private readonly (TypeKind, Value) _inner;
@@ -161,19 +174,33 @@ namespace ByteRush.CodeGen
     public sealed class AnonymousSymbol<T> : ISymbol<T>
     {
         private readonly int _inner;
+        private Box<int> _uses;
         private readonly System.Action _release;
 
-        private AnonymousSymbol(int inner, System.Action release)
+        private AnonymousSymbol(
+            int inner,
+            Box<int> uses,
+            System.Action release
+        )
         {
             _inner = inner;
+            _uses = uses;
             _release = release;
         }
 
-        public static AnonymousSymbol<T> New(int inner, System.Action release) => new AnonymousSymbol<T>(inner, release);
+        public static AnonymousSymbol<T> New(
+            int inner,
+            int uses,
+            System.Action release
+        ) => new AnonymousSymbol<T>(inner, Box.New(uses), release);
 
-        public ISymbol<U> Mark<U>() => AnonymousSymbol<U>.New(_inner, _release);
+        public ISymbol<U> Mark<U>() => new AnonymousSymbol<U>(_inner, _uses, _release);
 
-        public void Release() => _release?.Invoke();
+        public void Release()
+        {
+            _uses._value--;
+            if (_uses._value == 0) _release();
+        }
     }
 
     public struct PendingOpCodeOnlyStackAddressWrite<T>

@@ -69,12 +69,12 @@ namespace ByteRush.CodeGen
             OpCodeOnlyAddress<MOpCode> Address,
             OpCodeOnlyAddress<MStackAddress<MI32>> Lhs,
             OpCodeOnlyAddress<MStackAddress<MI32>> Rhs,
-            OpCodeOnlyAddress<MStackAddress<MI32>> Return
+            OpCodeOnlyAddress<MStackAddress<MBool>> Return
         ) LessThanI32() => (
             _opWriter.Op(Op.LessThanI32),
             _opWriter.StackAddress<MI32>(),
             _opWriter.StackAddress<MI32>(),
-            _opWriter.StackAddress<MI32>()
+            _opWriter.StackAddress<MBool>()
         );
     }
 }
