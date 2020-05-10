@@ -4,6 +4,9 @@ namespace ByteRush.Graph
 {
     public static class IdExtensions
     {
+        public static NodeDeclId NodeDeclId(this FullName self) =>
+            ByteRush.Graph.NodeDeclId.New(self);
+
         public static NodeKey NodeKey(this FullInputPortKey self) =>
             Graph.NodeKey.New(self.NodeDef, self.Node);
 

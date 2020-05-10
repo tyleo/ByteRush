@@ -5,7 +5,9 @@ namespace ByteRush.Graph.Definitions
 {
     public sealed class IfDef : SimpleDef
     {
-        public override string Name => "If";
+        private static FullName StaticFullName { get; } = FullName.FromLibEnd("System", "If");
+        public static NodeDeclId Id => StaticFullName.NodeDeclId();
+        public override FullName FullName => StaticFullName;
 
         private IfDef() : base(
             Util.NewArray(PortDecl.New("", TypeKind.Exec), PortDecl.New("if", TypeKind.Bool)),

@@ -36,6 +36,27 @@ namespace ByteRush.Test.Utilities
         }
 
         [Test]
+        public void ReadWriteCharTest()
+        {
+            byte[] Chars(params char[] values) => Values(ByteUtil.WriteChar, sizeof(char), values);
+
+            var zero = Chars('\0');
+            const char randomVal = 'e';
+            var random = Chars(randomVal);
+            var max = Chars(char.MaxValue);
+            var min = Chars(char.MinValue);
+            var two = Chars('A', 'B');
+
+            Assert.AreEqual('\0', ByteUtil.ReadChar(zero, 0));
+            Assert.AreEqual(randomVal, ByteUtil.ReadChar(random, 0));
+            Assert.AreEqual(char.MaxValue, ByteUtil.ReadChar(max, 0));
+            Assert.AreEqual(char.MinValue, ByteUtil.ReadChar(min, 0));
+
+            Assert.AreEqual('A', ByteUtil.ReadChar(two, 0));
+            Assert.AreEqual('B', ByteUtil.ReadChar(two, sizeof(char)));
+        }
+
+        [Test]
         public void ReadWriteF32Test()
         {
             byte[] F32s(params float[] values) => Values(ByteUtil.WriteF32, sizeof(float), values);

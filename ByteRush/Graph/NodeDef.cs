@@ -5,7 +5,7 @@ namespace ByteRush.Graph
 {
     public sealed class NodeDef : INodeDecl
     {
-        public string Name { get; set; }
+        public FullName FullName { get; }
 
         private readonly List<PortDecl> _inputs = new List<PortDecl>();
         public IReadOnlyList<PortDecl> GetInputs(NodeDef nodeDef) => _inputs;
@@ -39,7 +39,7 @@ namespace ByteRush.Graph
             throw new System.NotImplementedException();
         }
 
-        private NodeDef() { }
-        public static NodeDef New() => new NodeDef();
+        private NodeDef(FullName fullName) => FullName = fullName;
+        public static NodeDef New(FullName fullName) => new NodeDef(fullName);
     }
 }

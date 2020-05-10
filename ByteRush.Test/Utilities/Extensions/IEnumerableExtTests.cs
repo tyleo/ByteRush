@@ -3,6 +3,7 @@ using ByteRush.Utilities.Extensions;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace ByteRush.Test.Utilities.Extensions
 {
@@ -109,6 +110,45 @@ namespace ByteRush.Test.Utilities.Extensions
             Assert.IsTrue(twoEnumerator.MoveNext());
             Assert.AreEqual(1, twoEnumerator.Current);
             Assert.IsFalse(twoEnumerator.MoveNext());
+        }
+
+        [Test]
+        public void ExtendTest()
+        {
+            var one = Util.NewArray(1);
+            var two = Util.NewArray(1, 2);
+
+            var extend = one.Extend(two);
+
+            var enumerator = extend.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(1, enumerator.Current);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(2, enumerator.Current);
+            Assert.IsFalse(enumerator.MoveNext());
+        }
+
+        [Test]
+        public void ForEachTest()
+        {
+            var expected = Util.NewArray(1, 2);
+            var actual = Util.NewArray(1, 2);
+
+            var expectedSum = 0;
+            foreach (var i in expected) expectedSum += i;
+
+            var actualSum = 0;
+            actual.ForEach(i => actualSum += i);
+
+            Assert.AreEqual(expectedSum, actualSum);
+        }
+
+        [Test]
+        public void SequenceGetHashCodeTest()
+        {
+            var expected = 1.GetHashCode() ^ 50.GetHashCode() ^ -573.GetHashCode();
+            var actual = Util.NewArray(1, 50, -573).SequenceGetHashCode();
+            Assert.AreEqual(expected, actual);
         }
     }
 }

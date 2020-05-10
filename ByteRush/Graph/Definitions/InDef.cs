@@ -7,7 +7,9 @@ namespace ByteRush.Graph.Definitions
 {
     public sealed class InDef : INodeDecl
     {
-        public string Name => "In";
+        private static FullName StaticFullName { get; } = FullName.FromLibEnd("System", "In");
+        public static NodeDeclId Id => StaticFullName.NodeDeclId();
+        public FullName FullName => StaticFullName;
 
         public IReadOnlyList<PortDecl> GetInputs(NodeDef nodeDef) => new List<PortDecl>();
 

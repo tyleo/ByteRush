@@ -5,7 +5,9 @@ namespace ByteRush.Graph.Definitions
 {
     public sealed class SetDef : SimpleDef<SetMeta>
     {
-        public override string Name => "Set";
+        private static FullName StaticFullName { get; } = FullName.FromLibEnd("System", "Set");
+        public static NodeDeclId Id => StaticFullName.NodeDeclId();
+        public override FullName FullName => StaticFullName;
 
         private SetDef() : base(
             Util.NewArray(PortDecl.New("", TypeKind.Exec), PortDecl.New("value", TypeKind.I32)),

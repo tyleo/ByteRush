@@ -2,14 +2,15 @@
 using ByteRush.Graph.Definitions;
 using ByteRush.Utilities;
 using ByteRush.Utilities.Extensions;
+using System.Collections.Generic;
 
 namespace ByteRush.Graph
 {
     public sealed class State
     {
-        private readonly CompactedList<INodeDecl> _nodeDecls = CompactedList<INodeDecl>.New();
+        private readonly Dictionary<NodeDeclId, INodeDecl> _nodeDecls = new Dictionary<NodeDeclId, INodeDecl>();
 
-        public INodeDecl GetNodeDecl(NodeDeclId i) => _nodeDecls[i.Int];
+        public INodeDecl GetNodeDecl(NodeDeclId i) => _nodeDecls[i];
         public NodeDef GetNodeDef(NodeDeclId i) => (NodeDef)GetNodeDecl(i);
         public ref readonly Node GetNode(NodeDeclId nodeDef, NodeId node) =>
             ref GetNodeDef(nodeDef).GetNode(node);
@@ -42,7 +43,7 @@ namespace ByteRush.Graph
                 case ActionKind.AddNodeDecls:
                     {
                         var addNodeDecls = (AddNodeDecls)action;
-                        addNodeDecls.NodeDecls.ForEach(i => _nodeDecls.Add(i));
+                        addNodeDecls.NodeDecls.ForEach(i => _nodeDecls.Add(NodeDeclId.New(i.FullName), i));
                     }
                     break;
 

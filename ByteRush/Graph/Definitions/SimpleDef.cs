@@ -4,7 +4,7 @@ namespace ByteRush.Graph.Definitions
 {
     public abstract class SimpleDef : INodeDecl
     {
-        public abstract string Name { get; }
+        public abstract FullName FullName { get; }
 
         private readonly PortDecl[] _inputs;
         public IReadOnlyList<PortDecl> GetInputs(NodeDef nodeDef) => _inputs;

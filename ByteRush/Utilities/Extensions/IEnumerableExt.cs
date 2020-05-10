@@ -77,6 +77,9 @@ namespace ByteRush.Utilities.Extensions
             foreach (var i in self) op(i);
         }
 
+        public static int SequenceGetHashCode<T>(this IEnumerable<T> self) =>
+            self.Aggregate(0, (prev, current) => prev ^ current.GetHashCode());
+
         public static Dictionary<K, V> ToDictionary<K, V>(this IEnumerable<(K, V)> self) =>
             self.ToDictionary(i => i.Item1, i => i.Item2);
 

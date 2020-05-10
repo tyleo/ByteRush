@@ -13,6 +13,10 @@ namespace ByteRush.Graph
 
         public override bool Equals(object obj) => this.EquatableEquals(obj);
 
+        public static bool operator ==(EdgeId lhs, EdgeId rhs) => Equals(lhs, rhs);
+
+        public static bool operator !=(EdgeId lhs, EdgeId rhs) => !(lhs == rhs);
+
         public override int GetHashCode() => Int;
 
         internal int Int { get; }

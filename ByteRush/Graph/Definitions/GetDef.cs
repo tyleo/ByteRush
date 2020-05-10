@@ -5,7 +5,9 @@ namespace ByteRush.Graph.Definitions
 {
     public sealed class GetDef : SimpleDef<GetMeta>
     {
-        public override string Name => "Get";
+        private static FullName StaticFullName { get; } = FullName.FromLibEnd("System", "Get");
+        public static NodeDeclId Id => StaticFullName.NodeDeclId();
+        public override FullName FullName => StaticFullName;
 
         private GetDef() : base(
             Util.NewArray<PortDecl>(),

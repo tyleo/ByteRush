@@ -5,7 +5,9 @@ namespace ByteRush.Graph.Definitions
 {
     public sealed class LessThanDef : SimpleDef
     {
-        public override string Name => "LessThan";
+        private static FullName StaticFullName { get; } = FullName.FromLibEnd("System", "LessThan");
+        public static NodeDeclId Id => StaticFullName.NodeDeclId();
+        public override FullName FullName => StaticFullName;
 
         private LessThanDef() : base(
             Util.NewArray(PortDecl.New("lhs", TypeKind.I32), PortDecl.New("lhs", TypeKind.I32)),

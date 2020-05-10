@@ -4,7 +4,7 @@ namespace ByteRush.Graph
 {
     public interface INodeDecl
     {
-        string Name { get; }
+        FullName FullName { get; }
 
         IReadOnlyList<PortDecl> GetInputs(NodeDef nodeDef);
 
