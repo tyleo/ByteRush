@@ -20,7 +20,7 @@ namespace ByteRush.Graph.Definitions
             _outputs = outputs;
         }
 
-        public abstract void GenerateCode(NodeId nodeId, in Node node, CodeGen.CodeOnlyState state);
+        public abstract void GenerateCode(NodeId nodeId, in Node node, CodeGen.CodeGenState state);
     }
 
     public abstract class SimpleDef<T> : SimpleDef

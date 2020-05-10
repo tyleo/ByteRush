@@ -14,7 +14,7 @@ namespace ByteRush.Graph.Definitions
 
         public static IfDef New() => new IfDef();
 
-        public override void GenerateCode(NodeId nodeId, in Node node, CodeOnlyState state)
+        public override void GenerateCode(NodeId nodeId, in Node node, CodeGenState state)
         {
             var conditionSym = state.GenerateDataBack<MBool>(in node, InputPortId.New(1));
 

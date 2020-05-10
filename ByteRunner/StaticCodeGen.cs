@@ -1,7 +1,7 @@
 ﻿using ByteRush.Graph;
 using ByteRush.Utilities;
 
-using CodeGenState = ByteRush.CodeGen.CodeOnlyState;
+using CodeGenState = ByteRush.CodeGen.CodeGenState;
 using GraphState = ByteRush.Graph.State;
 
 namespace ByteRunner

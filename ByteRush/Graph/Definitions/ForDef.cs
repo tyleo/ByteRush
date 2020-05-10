@@ -23,7 +23,7 @@ namespace ByteRush.Graph.Definitions
 
         public static ForDef New() => new ForDef();
 
-        public override void GenerateCode(NodeId nodeId, in Node node, CodeOnlyState state)
+        public override void GenerateCode(NodeId nodeId, in Node node, CodeGenState state)
         {
             var startSym = state.GenerateDataBack<MI32>(in node, InputPortId.New(1));
             startSym.Release();

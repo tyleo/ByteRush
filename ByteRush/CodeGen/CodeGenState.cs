@@ -3,11 +3,10 @@ using ByteRush.Utilities;
 using ByteRush.Utilities.Extensions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace ByteRush.CodeGen
 {
-    public sealed class CodeOnlyState
+    public sealed class CodeGenState
     {
         public NodeDef NodeDef { get; }
         public State GraphState { get; }
@@ -279,14 +278,14 @@ namespace ByteRush.CodeGen
             return finalOpCodeWriter.GetOpCode();
         }
 
-        private CodeOnlyState(NodeDef nodeDef, State graphState)
+        private CodeGenState(NodeDef nodeDef, State graphState)
         {
             NodeDef = nodeDef;
             GraphState = graphState;
         }
 
-        public static CodeOnlyState New(NodeDef nodeDef, State graphState) =>
-            new CodeOnlyState(nodeDef, graphState);
+        public static CodeGenState New(NodeDef nodeDef, State graphState) =>
+            new CodeGenState(nodeDef, graphState);
 
         public static byte[] GenerateCodeForNode(NodeDef nodeDef, State graphState, NodeId node)
         {

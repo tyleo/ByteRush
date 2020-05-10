@@ -17,7 +17,7 @@ namespace ByteRush.Graph.Definitions
         public override void GenerateCode(
             NodeId nodeId,
             in Node node,
-            CodeOnlyState state
+            CodeGenState state
         )
         {
             var lhsSym = state.GenerateDataBack<MI32>(in node, InputPortId.New(0));

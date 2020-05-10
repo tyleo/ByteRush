@@ -14,7 +14,10 @@ namespace ByteRush.Utilities
             [FieldOffset(0)]
             public byte _byte;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public BoolByte(bool value) : this() => _bool = value;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public BoolByte(byte value) : this() => _byte = value;
         }
 
@@ -26,7 +29,10 @@ namespace ByteRush.Utilities
             [FieldOffset(0)]
             public int _int;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public FloatInt(float value) : this() => _float = value;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public FloatInt(int value) : this() => _int = value;
         }
 
@@ -64,10 +70,6 @@ namespace ByteRush.Utilities
         public static void WriteBool(byte[] bytes, int index, bool value) => bytes[index] = new BoolByte(value)._byte;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteU8(byte[] bytes, int index, byte value) => bytes[index] = value;
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteF32(byte[] bytes, int index, float value)
         {
             var intValue = new FloatInt(value)._int;
@@ -85,6 +87,9 @@ namespace ByteRush.Utilities
             bytes[index + 2] = (value >> 16).Byte();
             bytes[index + 3] = (value >> 24).Byte();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteU8(byte[] bytes, int index, byte value) => bytes[index] = value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteU16(byte[] bytes, int index, ushort value)

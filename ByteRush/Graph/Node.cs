@@ -51,7 +51,7 @@ namespace ByteRush.Graph
 
         public void GenerateCode(
             NodeId nodeId,
-            CodeOnlyState state
+            CodeGenState state
         ) => state.GraphState.GetNodeDecl(DeclId).GenerateCode(nodeId, in this, state);
     }
 }

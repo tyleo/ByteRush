@@ -20,7 +20,7 @@ namespace ByteRush.Graph.Definitions
         public override void GenerateCode(
             NodeId nodeId,
             in Node node,
-            CodeOnlyState state
+            CodeGenState state
         ) => state.SetOutputSymbol(
             nodeId.OutputPortKey(OutputPortId.New(0)),
             VariableSymbol<MI32>.New(node.Meta<GetMeta>().VariableName)

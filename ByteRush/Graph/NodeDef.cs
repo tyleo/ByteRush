@@ -33,7 +33,7 @@ namespace ByteRush.Graph
         public void GenerateCode(
             NodeId nodeId,
             in Node node,
-            CodeGen.CodeOnlyState state
+            CodeGen.CodeGenState state
         )
         {
             throw new System.NotImplementedException();

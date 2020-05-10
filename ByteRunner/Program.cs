@@ -322,7 +322,7 @@ namespace ByteRunner
                 setNextNode1.InputPortKey(InputPortId.New(1))
             ));
 
-            return CodeOnlyState.GenerateCodeForNode(nodeDef, state, setLastCurrentNode0.Node);
+            return CodeGenState.GenerateCodeForNode(nodeDef, state, setLastCurrentNode0.Node);
         }
     }
 }

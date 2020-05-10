@@ -15,7 +15,7 @@ namespace ByteRush.Graph
         void GenerateCode(
             NodeId nodeId,
             in Node node,
-            CodeGen.CodeOnlyState state
+            CodeGen.CodeGenState state
         );
     }
 }

@@ -18,7 +18,7 @@ namespace ByteRush.Graph.Definitions
         public void GenerateCode(
             NodeId nodeId,
             in Node node,
-            CodeOnlyState state
+            CodeGenState state
         )
         {
             var outputs = GetOutputs(state.NodeDef);
