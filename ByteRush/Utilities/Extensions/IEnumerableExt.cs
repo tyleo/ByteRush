@@ -82,13 +82,15 @@ namespace ByteRush.Utilities.Extensions
 
         public static Dictionary<K, V> ToDictionary<K, V>(this IEnumerable<(K, V)> self) =>
             self.ToDictionary(i => i.Item1, i => i.Item2);
-
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> self) => new HashSet<T>(self);
+
+        public static IEnumerable<(K Key, V Value)> ToTuples<K, V>(this IEnumerable<KeyValuePair<K, V>> self) =>
+            self.Select(i => (i.Key, i.Value));
 
         public static IRefEnumerable<T> IntoRef<T>(this IEnumerable<T> self) =>
             RefEnumerableAdapter<T>.New(self);
 
-        public static IEnumerable<(T, U)> Zip<T, U>(this IEnumerable<T> lhs, IEnumerable<U> rhs) =>
+        public static IEnumerable<(T, U)> ValueZip<T, U>(this IEnumerable<T> lhs, IEnumerable<U> rhs) =>
             lhs.Zip(rhs, (lItem, rItem) => (lItem, rItem));
     }
 }

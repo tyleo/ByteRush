@@ -124,7 +124,7 @@ namespace ByteRush.Test.Utilities.Extensions
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(1, enumerator.Current);
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreEqual(2, enumerator.Current);
+            Assert.AreEqual(0, enumerator.Current);
             Assert.IsFalse(enumerator.MoveNext());
         }
 
@@ -149,6 +149,93 @@ namespace ByteRush.Test.Utilities.Extensions
             var expected = 1.GetHashCode() ^ 50.GetHashCode() ^ -573.GetHashCode();
             var actual = Util.NewArray(1, 50, -573).SequenceGetHashCode();
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void ToDictionaryTest()
+        {
+            var expected = new Dictionary<string, int>() { { "0", 0 }, { "1", 1 } };
+            var actual = Util.NewArray(("0", 0), ("1", 1)).ToDictionary();
+
+            foreach (var (key, value) in actual.ToTuples())
+            {
+                Assert.IsTrue(expected[key] == value);
+            }
+
+            var empty = Util.NewArray<(object, object)>().ToDictionary();
+            Assert.IsEmpty(empty);
+        }
+
+        [Test]
+        public void ToHashSetTest()
+        {
+            var expected = Util.NewArray("0", "1");
+            var actual = IEnumerableExt.ToHashSet(Util.NewArray("0", "1", "1"));
+
+            foreach (var value in expected)
+            {
+                Assert.IsTrue(actual.Contains(value));
+            }
+
+            Assert.AreEqual(2, actual.Count);
+
+            var empty = Util.NewArray<(object, object)>().ToDictionary();
+            Assert.IsEmpty(empty);
+        }
+
+        [Test]
+        public void ToTuplesTest()
+        {
+            var expected = Util.NewArray(Util.NewKVP("0", 0), Util.NewKVP("1", 1));
+            var actual = expected.ToTuples();
+
+            foreach (var (expectedItem, actualItem) in IEnumerableExt.ValueZip(expected, actual))
+            {
+                Assert.AreEqual(expectedItem.Key, actualItem.Key);
+                Assert.AreEqual(expectedItem.Value, actualItem.Value);
+            }
+
+            var empty = Util.NewArray<KeyValuePair<object, object>>().ToTuples();
+            Assert.IsEmpty(empty);
+        }
+
+        [Test]
+        public void IntoRefTest()
+        {
+            var items = Util.NewArray(0, 1);
+            var actual = items.IntoRef();
+            var enumerator = actual.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(0, enumerator.Current);
+            enumerator.Current = 2;
+            Assert.AreEqual(2, enumerator.Current);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(1, enumerator.Current);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            var empty = Util.NewArray<KeyValuePair<object, object>>().ToTuples();
+            Assert.IsFalse(empty.GetEnumerator().MoveNext());
+        }
+
+        [Test]
+        public void ValueZipTest()
+        {
+            var left = Util.NewArray(0, 1);
+            var right = Util.NewArray(2, 3, 4);
+            var zipped = left.Zip(right);
+            var enumerator = zipped.GetEnumerator();
+
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(0, enumerator.Current.First);
+            Assert.AreEqual(2, enumerator.Current.Second);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(1, enumerator.Current.First);
+            Assert.AreEqual(3, enumerator.Current.Second);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            var empty = Util.NewArray<KeyValuePair<object, object>>().ToTuples();
+            Assert.IsEmpty(left.ValueZip(empty));
+            Assert.IsEmpty(empty.ValueZip(left));
         }
     }
 }

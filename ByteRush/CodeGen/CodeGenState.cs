@@ -252,9 +252,9 @@ namespace ByteRush.CodeGen
             var (varStackAddresses, anonStackAddresses, constStackAddresses) =
                 preambleWriter.EnterFunction(varBundle.Length, anonBundle.Length, constBundle.Select(i => i.Item2).ToArray());
 
-            var varAddressDict = varBundle.Zip(varStackAddresses).ToDictionary();
-            var anonAddressDict = anonBundle.Zip(anonStackAddresses).ToDictionary();
-            var constAddressDict = constBundle.Zip(constStackAddresses).ToDictionary();
+            var varAddressDict = varBundle.ValueZip(varStackAddresses).ToDictionary();
+            var anonAddressDict = anonBundle.ValueZip(anonStackAddresses).ToDictionary();
+            var constAddressDict = constBundle.ValueZip(constStackAddresses).ToDictionary();
 
             var finalOpCodeWriter = OpWriter.AddPremable(preambleWriter);
 

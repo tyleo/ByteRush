@@ -10,17 +10,18 @@ namespace ByteRush.Utilities
 
         private RefEnumeratorAdapter(IEnumerator<T> inner) => _inner = inner;
 
-        public ref T Current
-        {
-            get
-            {
-                _current = _inner.Current;
-                return ref _current;
-            }
-        }
+        public ref T Current => ref _current;
 
         public static RefEnumeratorAdapter<T> New(IEnumerator<T> inner) => new RefEnumeratorAdapter<T>(inner);
 
-        public bool MoveNext() => _inner.MoveNext();
+        public bool MoveNext()
+        {
+            if (_inner.MoveNext())
+            {
+                _current = _inner.Current;
+                return true;
+            }
+            return false;
+        }
     }
 }
