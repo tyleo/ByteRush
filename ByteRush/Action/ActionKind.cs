@@ -6,6 +6,7 @@
         AddNode,
         AddNodeDecls,
         SetDefaultValue,
+        SetGetMetaName,
         SetSetMetaName
     }
 }

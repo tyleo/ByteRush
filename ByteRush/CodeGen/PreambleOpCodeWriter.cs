@@ -32,8 +32,8 @@ namespace ByteRush.CodeGen
 
             return (
                 numVariables.Enumerate().Select(i => StackAddress<MValue>.New(numVariables + numAnonymouses + constants.Length - 1 - i)).ToArray(),
-                numVariables.Enumerate().Select(i => StackAddress<MValue>.New(numAnonymouses + constants.Length - 1 - i)).ToArray(),
-                numVariables.Enumerate().Select(i => StackAddress<MValue>.New(constants.Length - 1 - i)).ToArray()
+                numAnonymouses.Enumerate().Select(i => StackAddress<MValue>.New(numAnonymouses + constants.Length - 1 - i)).ToArray(),
+                constants.Length.Enumerate().Select(i => StackAddress<MValue>.New(constants.Length - 1 - i)).ToArray()
             );
         }
     }

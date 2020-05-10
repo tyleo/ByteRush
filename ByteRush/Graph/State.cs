@@ -54,6 +54,15 @@ namespace ByteRush.Graph
                     }
                     break;
 
+                case ActionKind.SetGetMetaName:
+                    {
+                        var setGetMetaName = (SetGetMetaName)action;
+                        ref readonly var getNode = ref GetNode(setGetMetaName.Node);
+                        var getMeta = getNode.Meta<GetMeta>();
+                        getMeta.VariableName = setGetMetaName.Name;
+                    }
+                    break;
+
                 case ActionKind.SetSetMetaName:
                     {
                         var setSetMetaName = (SetSetMetaName)action;

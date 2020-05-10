@@ -1,7 +1,5 @@
-﻿using ByteRush.Utilities;
-using ByteRush.Interpreter;
-using ByteRush.Utilities.Extensions;
-using System;
+﻿using ByteRush.Interpreter;
+using System.Linq;
 
 namespace ByteRush.CodeGen
 {
@@ -9,13 +7,24 @@ namespace ByteRush.CodeGen
     {
         private readonly OpCodeWriter _opWriter;
 
-        private CodeOnlyOpCodeWriter() => _opWriter = OpCodeWriter.New();
+        private CodeOnlyOpCodeWriter() => _opWriter = CodeGen.OpCodeWriter.New();
 
         public static CodeOnlyOpCodeWriter New() => new CodeOnlyOpCodeWriter();
 
         public OpCodeOnlyAddress<MOpCode> GetAddress() => OpCodeOnlyAddress<MOpCode>.New(_opWriter.GetAddress());
 
         public byte[] GetOpCode() => _opWriter.GetOpCode();
+
+        public FinalOpCodeWriter AddPremable(PreambleOpCodeWriter preamble) =>
+            FinalOpCodeWriter.New(
+                preamble.GetAddress(),
+                OpCodeWriter.From(
+                    Enumerable.Concat(
+                        preamble.GetOpCode(),
+                        GetOpCode()
+                    ).ToArray()
+                )
+            );
 
         public (
             OpCodeOnlyAddress<MOpCode> Address,

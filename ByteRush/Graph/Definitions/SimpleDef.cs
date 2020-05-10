@@ -12,7 +12,7 @@ namespace ByteRush.Graph.Definitions
         private readonly PortDecl[] _outputs;
         public IReadOnlyList<PortDecl> GetOutputs(NodeDef nodeDef) => _outputs;
 
-        public virtual object DefaultMeta() => null;
+        public virtual object DefaultMeta() => new object();
 
         protected SimpleDef(PortDecl[] inputs, PortDecl[] outputs)
         {

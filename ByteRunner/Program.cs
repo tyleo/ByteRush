@@ -6,16 +6,16 @@ using ByteRush.Interpreter;
 using ByteRush.Graph;
 using System;
 using System.Diagnostics;
-
-using CodeGenState = ByteRush.CodeGen.CodeOnlyState;
-using GraphState = ByteRush.Graph.State;
 using ByteRush.Utilities;
-using System.Reflection.Metadata;
+
+using GraphState = ByteRush.Graph.State;
 
 namespace ByteRunner
 {
     public static class Program
     {
+        private const int COUNT = 50;
+
         private static int Fibonacci(int iterations)
         {
             var current = 0;
@@ -31,29 +31,49 @@ namespace ByteRunner
 
         private static void Main(string[] args)
         {
-            
+            var rawBytes = RawBytes();
+            var rawVm = new VirtualMachine(rawBytes);
+            var rawVm2 = new VirtualMachine(rawBytes);
+            var rawVm3 = new VirtualMachine(rawBytes);
 
-
-            var opWriter = OpCodeWriter.New();
-            var bytes = Bytes();
-            var vm = new VirtualMachine(bytes);
+            var compiledBytes = CompiledBytes();
+            var compiledVm = new VirtualMachine(compiledBytes);
+            var compiledVm2 = new VirtualMachine(compiledBytes);
+            var compiledVm3 = new VirtualMachine(compiledBytes);
 
             var sw = Stopwatch.StartNew();
-            vm.Execute();
-            var msResult = sw.ElapsedHighResolutionMilliseconds();
-            var frame60Result = sw.ElapsedHighResolutionFrame60s() * 100;
-            Console.WriteLine($"{msResult} ms");
-            Console.WriteLine($"{frame60Result} % frame");
 
             sw.Restart();
-            var result = Fibonacci(5);
+            var result = Fibonacci(COUNT);
             var msResult2 = sw.ElapsedHighResolutionMilliseconds();
             var frame60Result2 = sw.ElapsedHighResolutionFrame60s() * 100;
             Console.WriteLine($"{msResult2} ms");
             Console.WriteLine($"{frame60Result2} % frame");
+
+            compiledVm2.Execute();
+            rawVm2.Execute();
+
+            sw.Restart();
+            rawVm.Execute();
+            var msResult1 = sw.ElapsedHighResolutionMilliseconds();
+            var frame60Result1 = sw.ElapsedHighResolutionFrame60s() * 100;
+            Console.WriteLine($"{msResult1} ms");
+            Console.WriteLine($"{frame60Result1} % frame");
+
+            rawVm3.Execute();
+            compiledVm3.Execute();
+
+            sw.Restart();
+            compiledVm.Execute();
+            var msResult0 = sw.ElapsedHighResolutionMilliseconds();
+            var frame60Result0 = sw.ElapsedHighResolutionFrame60s() * 100;
+            Console.WriteLine($"{msResult0} ms");
+            Console.WriteLine($"{frame60Result0} % frame");
+
+            
         }
 
-        private static byte[] Bytes()
+        private static byte[] RawBytes()
         {
             var preambleOpWriter = PreambleOpCodeWriter.New();
             var (variables, anonymouses, constants) = preambleOpWriter.EnterFunction(
@@ -62,7 +82,7 @@ namespace ByteRunner
                 Util.NewArray(
                     Value.I32(0),
                     Value.I32(1),
-                    Value.I32(5)
+                    Value.I32(COUNT)
                 )
             );
 
@@ -154,69 +174,155 @@ namespace ByteRunner
             return finalOpWriter.GetOpCode();
         }
 
-        private static byte[] Compiled()
+        private static byte[] CompiledBytes()
         {
             var state = GraphState.New();
 
+            var nodeDef = NodeDef.New();
             state.Reduce(AddNodeDecls.New(
                 AddDef.New(),
                 ForDef.New(),
                 IfDef.New(),
                 LessThanDef.New(),
                 SetDef.New(),
-                NodeDef.New()
+                GetDef.New(),
+                nodeDef
             ));
 
-            var addId = NodeDeclId.New(0);
-            var forId = NodeDeclId.New(1);
-            // var ifId = NodeDeclId.New(2);
-            var lessThanId = NodeDeclId.New(3);
-            var setId = NodeDeclId.New(4);
-            var worldId = NodeDeclId.New(5);
+            var defId = 0;
+            var addId = NodeDeclId.New(defId++);
+            var forId = NodeDeclId.New(defId++);
+            defId++;
+            defId++;
+            // var ifId = NodeDeclId.New(defId++);
+            // var lessThanId = NodeDeclId.New(defId++);
+            var setId = NodeDeclId.New(defId++);
+            var getId = NodeDeclId.New(defId++);
+            var worldId = NodeDeclId.New(defId++);
 
+            var nodeId = 0;
             state.Reduce(AddNode.New(setId, worldId));
-            var setLastCurrentNode0 = NodeKey.New(worldId, NodeId.New(0));
-            var setLastCurrentPort0 = FullInputPortKey.New(worldId, NodeId.New(0), InputPortId.New(1));
+            var setLastCurrentNode0 = NodeKey.New(worldId, NodeId.New(nodeId++));
+            var setLastCurrentPort0 = setLastCurrentNode0.FullInputPortKey(InputPortId.New(1));
             state.Reduce(SetSetMetaName.New(setLastCurrentNode0, "lastCurrent"));
             state.Reduce(SetDefaultValue.New(setLastCurrentPort0, Value.I32(0)));
 
             state.Reduce(AddNode.New(setId, worldId));
-            var setCurrentNode0 = NodeKey.New(worldId, NodeId.New(1));
-            var setCurrentPort0 = FullInputPortKey.New(worldId, NodeId.New(1), InputPortId.New(1));
+            var setCurrentNode0 = NodeKey.New(worldId, NodeId.New(nodeId++));
+            var setCurrentPort0 = setCurrentNode0.FullInputPortKey(InputPortId.New(1));
             state.Reduce(SetSetMetaName.New(setCurrentNode0, "current"));
             state.Reduce(SetDefaultValue.New(setCurrentPort0, Value.I32(0)));
 
+
+            state.Reduce(AddEdge.New(
+                worldId,
+                setLastCurrentNode0.OutputPortKey(OutputPortId.New(0)),
+                setCurrentNode0.InputPortKey(InputPortId.New(0))
+            ));
+
             state.Reduce(AddNode.New(setId, worldId));
-            var setNextNode0 = NodeKey.New(worldId, NodeId.New(2));
-            var setNextPort0 = FullInputPortKey.New(worldId, NodeId.New(2), InputPortId.New(1));
+            var setNextNode0 = NodeKey.New(worldId, NodeId.New(nodeId++));
+            var setNextPort0 = setNextNode0.FullInputPortKey(InputPortId.New(1));
             state.Reduce(SetSetMetaName.New(setNextNode0, "next"));
             state.Reduce(SetDefaultValue.New(setNextPort0, Value.I32(1)));
 
+            state.Reduce(AddEdge.New(
+                worldId,
+                setCurrentNode0.OutputPortKey(OutputPortId.New(0)),
+                setNextNode0.InputPortKey(InputPortId.New(0))
+            ));
+
 
             state.Reduce(AddNode.New(forId, worldId));
-            var forNode = NodeKey.New(worldId, NodeId.New(3));
-            var forFromPort = FullInputPortKey.New(worldId, NodeId.New(3), InputPortId.New(1));
-            var forToPort = FullInputPortKey.New(worldId, NodeId.New(3), InputPortId.New(2));
+            var forNode = NodeKey.New(worldId, NodeId.New(nodeId++));
+            var forFromPort = forNode.FullInputPortKey(InputPortId.New(1));
+            var forToPort = forNode.FullInputPortKey(InputPortId.New(2));
             state.Reduce(SetDefaultValue.New(forFromPort, Value.I32(0)));
-            state.Reduce(SetDefaultValue.New(forToPort, Value.I32(50)));
+            state.Reduce(SetDefaultValue.New(forToPort, Value.I32(COUNT)));
 
+
+            state.Reduce(AddEdge.New(
+                worldId,
+                setNextNode0.OutputPortKey(OutputPortId.New(0)),
+                forNode.InputPortKey(InputPortId.New(0))
+            ));
+
+            state.Reduce(AddNode.New(getId, worldId));
+            var getCurrent = NodeKey.New(worldId, NodeId.New(nodeId++));
+            state.Reduce(SetGetMetaName.New(getCurrent, "current"));
+
+            state.Reduce(AddNode.New(getId, worldId));
+            var getLastCurrent = NodeKey.New(worldId, NodeId.New(nodeId++));
+            state.Reduce(SetGetMetaName.New(getLastCurrent, "lastCurrent"));
+
+            state.Reduce(AddNode.New(getId, worldId));
+            var getNext = NodeKey.New(worldId, NodeId.New(nodeId++));
+            state.Reduce(SetGetMetaName.New(getNext, "next"));
 
             state.Reduce(AddNode.New(setId, worldId));
-            var setLastCurrentNode1 = NodeKey.New(worldId, NodeId.New(4));
+            var setLastCurrentNode1 = NodeKey.New(worldId, NodeId.New(nodeId++));
             state.Reduce(SetSetMetaName.New(setLastCurrentNode1, "lastCurrent"));
 
+            state.Reduce(AddEdge.New(
+                worldId,
+                forNode.OutputPortKey(OutputPortId.New(0)),
+                setLastCurrentNode1.InputPortKey(InputPortId.New(0))
+            ));
+
+            state.Reduce(AddEdge.New(
+                worldId,
+                getCurrent.OutputPortKey(OutputPortId.New(0)),
+                setLastCurrentNode1.InputPortKey(InputPortId.New(1))
+            ));
+
             state.Reduce(AddNode.New(setId, worldId));
-            var setCurrentNode1 = NodeKey.New(worldId, NodeId.New(5));
+            var setCurrentNode1 = NodeKey.New(worldId, NodeId.New(nodeId++));
             state.Reduce(SetSetMetaName.New(setCurrentNode1, "current"));
 
+            state.Reduce(AddEdge.New(
+                worldId,
+                setLastCurrentNode1.OutputPortKey(OutputPortId.New(0)),
+                setCurrentNode1.InputPortKey(InputPortId.New(0))
+            ));
+
+            state.Reduce(AddEdge.New(
+                worldId,
+                getNext.OutputPortKey(OutputPortId.New(0)),
+                setCurrentNode1.InputPortKey(InputPortId.New(1))
+            ));
+
             state.Reduce(AddNode.New(addId, worldId));
-            var addNode = NodeKey.New(worldId, NodeId.New(6));
+            var addNode = NodeKey.New(worldId, NodeId.New(nodeId++));
+
+            state.Reduce(AddEdge.New(
+                worldId,
+                getLastCurrent.OutputPortKey(OutputPortId.New(0)),
+                addNode.InputPortKey(InputPortId.New(0))
+            ));
+
+            state.Reduce(AddEdge.New(
+                worldId,
+                getNext.OutputPortKey(OutputPortId.New(0)),
+                addNode.InputPortKey(InputPortId.New(1))
+            ));
 
             state.Reduce(AddNode.New(setId, worldId));
-            var setNextNode1 = NodeKey.New(worldId, NodeId.New(7));
+            var setNextNode1 = NodeKey.New(worldId, NodeId.New(nodeId++));
             state.Reduce(SetSetMetaName.New(setNextNode1, "next"));
 
-            return Array.Empty<byte>();
+            state.Reduce(AddEdge.New(
+                worldId,
+                setCurrentNode1.OutputPortKey(OutputPortId.New(0)),
+                setNextNode1.InputPortKey(InputPortId.New(0))
+            ));
+
+            state.Reduce(AddEdge.New(
+                worldId,
+                addNode.OutputPortKey(OutputPortId.New(0)),
+                setNextNode1.InputPortKey(InputPortId.New(1))
+            ));
+
+            return CodeOnlyState.GenerateCodeForNode(nodeDef, state, setLastCurrentNode0.Node);
         }
     }
 }

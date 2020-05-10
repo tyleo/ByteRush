@@ -28,5 +28,11 @@ namespace ByteRush.Utilities
         public static implicit operator Value(int value) => new Value(value);
         public static implicit operator Value(bool value) => new Value(value);
         public static implicit operator Value(byte value) => new Value(value);
+
+        public override bool Equals(object obj) =>
+            obj is Value value && _i32 == value._i32;
+
+        public override int GetHashCode() =>
+            1741969168 + _i32.GetHashCode();
     }
 }

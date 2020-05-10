@@ -3,6 +3,8 @@ using ByteRush.Utilities;
 using ByteRush.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using static ByteRush.Utilities.DebugUtil;
 
 namespace ByteRush.CodeGen
 {
@@ -61,10 +63,10 @@ namespace ByteRush.CodeGen
     public static class OpCodeOnlyAddress
     {
         public static OpCodeOnlyAddress<T> New<T>(int value) => OpCodeOnlyAddress<T>.New(value);
-        public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MBool>> self) => self.Mark< MStackAddress<MValue>>();
-        public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MF32>> self) => self.Mark< MStackAddress<MValue>>();
-        public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MI32>> self) => self.Mark< MStackAddress<MValue>>();
-        public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MU8>> self) => self.Mark< MStackAddress<MValue>>();
+        public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MBool>> self) => self.Mark<MStackAddress<MValue>>();
+        public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MF32>> self) => self.Mark<MStackAddress<MValue>>();
+        public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MI32>> self) => self.Mark<MStackAddress<MValue>>();
+        public static OpCodeOnlyAddress<MStackAddress<MValue>> ToValue(this OpCodeOnlyAddress<MStackAddress<MU8>> self) => self.Mark<MStackAddress<MValue>>();
         public static OpCodeOnlyAddress<MStackAddress<MBool>> ToBool(this OpCodeOnlyAddress<MStackAddress<MValue>> self) => self.Mark<MStackAddress<MBool>>();
         public static OpCodeOnlyAddress<MStackAddress<MF32>> ToF32(this OpCodeOnlyAddress<MStackAddress<MValue>> self) => self.Mark<MStackAddress<MF32>>();
         public static OpCodeOnlyAddress<MStackAddress<MI32>> ToI32(this OpCodeOnlyAddress<MStackAddress<MValue>> self) => self.Mark<MStackAddress<MI32>>();
@@ -126,80 +128,102 @@ namespace ByteRush.CodeGen
         public static FinalOpCodeAddress<T> New<T>(int value) => FinalOpCodeAddress<T>.New(value);
     }
 
+    public enum SymbolKind
+    {
+        Return, // Not implemented
+        Parameter,
+        Variable,
+        Anonymous,
+        Constant
+    }
+
     public interface ISymbol<T>
     {
+        SymbolKind Kind { get; }
         ISymbol<U> Mark<U>();
         void Release();
     }
 
     public sealed class ParameterSymbol<T> : ISymbol<T>
     {
-        private readonly int _inner;
+        public int Index { get; }
 
-        private ParameterSymbol(int inner) => _inner = inner;
+        public SymbolKind Kind => SymbolKind.Parameter;
 
-        public static ParameterSymbol<T> New(int inner) => new ParameterSymbol<T>(inner);
+        private ParameterSymbol(int index) => Index = index;
 
-        public ISymbol<U> Mark<U>() => ParameterSymbol<U>.New(_inner);
+        public static ParameterSymbol<T> New(int index) => new ParameterSymbol<T>(index);
+
+        public ISymbol<U> Mark<U>() => ParameterSymbol<U>.New(Index);
 
         public void Release() { }
     }
 
     public sealed class ConstantSymbol<T> : ISymbol<T>
     {
-        private readonly (TypeKind, Value) _inner;
+        public (TypeKind, Value) TypedValue { get; }
 
-        private ConstantSymbol((TypeKind, Value) inner) => _inner = inner;
+        public SymbolKind Kind => SymbolKind.Constant;
 
-        public static ConstantSymbol<T> New((TypeKind, Value) inner) => new ConstantSymbol<T>(inner);
+        private ConstantSymbol((TypeKind, Value) typedValue) => TypedValue = typedValue;
 
-        public ISymbol<U> Mark<U>() => ConstantSymbol<U>.New(_inner);
+        public static ConstantSymbol<T> New((TypeKind, Value) typedValue) => new ConstantSymbol<T>(typedValue);
+
+        public ISymbol<U> Mark<U>() => ConstantSymbol<U>.New(TypedValue);
 
         public void Release() { }
     }
 
     public sealed class VariableSymbol<T> : ISymbol<T>
     {
-        private readonly string _inner;
+        public string Name { get; }
 
-        private VariableSymbol(string inner) => _inner = inner;
+        public SymbolKind Kind => SymbolKind.Variable;
 
-        public static VariableSymbol<T> New(string inner) => new VariableSymbol<T>(inner);
+        private VariableSymbol(string name) => Name = name;
 
-        public ISymbol<U> Mark<U>() => VariableSymbol<U>.New(_inner);
+        public static VariableSymbol<T> New(string name) => new VariableSymbol<T>(name);
+
+        public ISymbol<U> Mark<U>() => VariableSymbol<U>.New(Name);
 
         public void Release() { }
     }
 
     public sealed class AnonymousSymbol<T> : ISymbol<T>
     {
-        private readonly int _inner;
-        private Box<int> _uses;
-        private readonly System.Action _release;
+        public int Id { get; }
+        private readonly Box<int> _uses;
+        private System.Action _release;
+
+        public SymbolKind Kind => SymbolKind.Anonymous;
 
         private AnonymousSymbol(
-            int inner,
+            int id,
             Box<int> uses,
             System.Action release
         )
         {
-            _inner = inner;
+            Id = id;
             _uses = uses;
             _release = release;
         }
 
         public static AnonymousSymbol<T> New(
-            int inner,
+            int id,
             int uses,
             System.Action release
-        ) => new AnonymousSymbol<T>(inner, Box.New(uses), release);
+        ) => new AnonymousSymbol<T>(id, Box.New(uses), release);
 
-        public ISymbol<U> Mark<U>() => new AnonymousSymbol<U>(_inner, _uses, _release);
+        public ISymbol<U> Mark<U>() => new AnonymousSymbol<U>(Id, _uses, _release);
 
         public void Release()
         {
             _uses._value--;
-            if (_uses._value == 0) _release();
+            if (_uses._value <= 0)
+            {
+                _release();
+                _release = () => Fail("Releasing anonomyous symbol multiple times!");
+            }
         }
     }
 
@@ -216,6 +240,28 @@ namespace ByteRush.CodeGen
 
         public static PendingOpCodeOnlyStackAddressWrite<T> New(ISymbol<T> symbol, OpCodeOnlyAddress<MStackAddress<T>> writeLocation) =>
             new PendingOpCodeOnlyStackAddressWrite<T>(symbol, writeLocation);
+    }
+
+    public struct PendingOpCodeOnlyStackAddressWrite<T, S>
+        where S : ISymbol<T>
+    {
+        public S Symbol { get; }
+        public OpCodeOnlyAddress<MStackAddress<T>> WriteLocation { get; }
+
+        private PendingOpCodeOnlyStackAddressWrite(S symbol, OpCodeOnlyAddress<MStackAddress<T>> writeLocation)
+        {
+            Symbol = symbol;
+            WriteLocation = writeLocation;
+        }
+
+        public static PendingOpCodeOnlyStackAddressWrite<T, S> New(S symbol, OpCodeOnlyAddress<MStackAddress<T>> writeLocation) =>
+            new PendingOpCodeOnlyStackAddressWrite<T, S>(symbol, writeLocation);
+    }
+
+    public static class PendingOpCodeOnlyStackAddressWrite
+    {
+        public static PendingOpCodeOnlyStackAddressWrite<T, S> New<T, S>(S symbol, OpCodeOnlyAddress<MStackAddress<T>> writeLocation)
+            where S : ISymbol<T> => PendingOpCodeOnlyStackAddressWrite<T, S>.New(symbol, writeLocation);
     }
 
     public struct PendingOpCodeOnlyOpCodeAddressWrite
