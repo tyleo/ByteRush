@@ -6,9 +6,9 @@ namespace ByteRush.Graph
     {
         FullName FullName { get; }
 
-        IReadOnlyList<PortDecl> GetInputs(NodeDef nodeDef);
+        IReadOnlyList<PortDecl> GetInputs(FunctionDef function);
 
-        IReadOnlyList<PortDecl> GetOutputs(NodeDef nodeDef);
+        IReadOnlyList<PortDecl> GetOutputs(FunctionDef function);
 
         object DefaultMeta();
 

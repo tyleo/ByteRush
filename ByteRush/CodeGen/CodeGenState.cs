@@ -8,9 +8,10 @@ namespace ByteRush.CodeGen
 {
     public sealed class CodeGenState
     {
-        public NodeDef NodeDef { get; }
+        public FunctionDef Function { get; }
         public State GraphState { get; }
         public CodeOnlyOpCodeWriter OpWriter { get; } = CodeOnlyOpCodeWriter.New();
+        public SharedCodeGenState Shared { get; }
 
 
         private readonly IList<PendingOpCodeOnlyStackAddressWrite<MBool>> _bools = new List<PendingOpCodeOnlyStackAddressWrite<MBool>>();
@@ -30,7 +31,7 @@ namespace ByteRush.CodeGen
         private readonly IDictionary<InputPortKey, int> _execBranchMergePoints = new Dictionary<InputPortKey, int>();
 
 
-        private Indexer _anonomyousGenerator = new Indexer();
+        private Indexer _anonomyousGenerator = Indexer.New();
 
 
         public void QueueSymbolAddressWrite(ISymbol<MBool> symbol, OpCodeOnlyAddress<MStackAddress<MBool>> writeLocation) =>
@@ -68,7 +69,7 @@ namespace ByteRush.CodeGen
         public void GenerateCode(NodeId nodeId)
         {
             _generatedNodes.Add(nodeId);
-            NodeDef.GetNode(nodeId).GenerateCode(nodeId, this);
+            Function.GetNode(nodeId).GenerateCode(nodeId, this);
         }
 
         public ISymbol<T> GenerateDataBack<T>(
@@ -83,7 +84,7 @@ namespace ByteRush.CodeGen
                 return ConstantSymbol<T>.New((inputPort.Type, currentNode.GetDefaultValue(inputPortId)));
             }
 
-            ref readonly var outputPort = ref NodeDef.GetEdge(inputPort.GetEdge(EdgeId.New(0)))._from;
+            ref readonly var outputPort = ref Function.GetEdge(inputPort.GetEdge(EdgeId.New(0)))._from;
 
             if (!_generatedNodes.Contains(outputPort.Node))
             {
@@ -125,9 +126,9 @@ namespace ByteRush.CodeGen
                 _generatedExpressions.Clear();
             }
 
-            ref readonly var inputEdge = ref NodeDef.GetEdge(outputPort.GetEdge(EdgeId.New(0)))._to;
+            ref readonly var inputEdge = ref Function.GetEdge(outputPort.GetEdge(EdgeId.New(0)))._to;
             var nextNodeId = inputEdge.Node;
-            ref readonly var nextNode = ref NodeDef.GetNode(inputEdge.Node);
+            ref readonly var nextNode = ref Function.GetNode(inputEdge.Node);
             ref readonly var nextPort = ref nextNode.GetInput(inputEdge.Port);
             if (nextPort.EdgeCount == 1)
             {
@@ -278,18 +279,19 @@ namespace ByteRush.CodeGen
             return finalOpCodeWriter.GetOpCode();
         }
 
-        private CodeGenState(NodeDef nodeDef, State graphState)
+        private CodeGenState(FunctionDef function, State graphState, SharedCodeGenState shared = null)
         {
-            NodeDef = nodeDef;
+            Function = function;
             GraphState = graphState;
+            Shared = shared ?? SharedCodeGenState.New();
         }
 
-        public static CodeGenState New(NodeDef nodeDef, State graphState) =>
-            new CodeGenState(nodeDef, graphState);
+        public static CodeGenState New(FunctionDef function, State graphState, SharedCodeGenState shared = null) =>
+            new CodeGenState(function, graphState, shared);
 
-        public static byte[] GenerateCodeForNode(NodeDef nodeDef, State graphState, NodeId node)
+        public static byte[] GenerateCodeForNode(FunctionDef function, State graphState, NodeId node, SharedCodeGenState shared = null)
         {
-            var self = New(nodeDef, graphState);
+            var self = New(function, graphState, shared);
             self.GenerateCode(node);
             return self.Finish();
         }

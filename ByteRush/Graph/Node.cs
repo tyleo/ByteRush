@@ -28,13 +28,13 @@ namespace ByteRush.Graph
 
         private Node(
             State graphState,
-            NodeDef encapsulatingNodeDef,
+            FunctionDef encapsulatingFunction,
             NodeDeclId declId
         )
         {
             var decl = graphState.GetNodeDecl(declId);
-            var inputs = decl.GetInputs(encapsulatingNodeDef);
-            var outputs = decl.GetOutputs(encapsulatingNodeDef);
+            var inputs = decl.GetInputs(encapsulatingFunction);
+            var outputs = decl.GetOutputs(encapsulatingFunction);
 
             DeclId = declId;
             _defaultValues = ArrayList.FromArray(inputs.Select(_ => new Value()).ToArray());
@@ -45,9 +45,9 @@ namespace ByteRush.Graph
 
         public static Node New(
             State graphState,
-            NodeDef encapsulatingNodeDef,
+            FunctionDef encapsulatingFunction,
             NodeDeclId declId
-        ) => new Node(graphState, encapsulatingNodeDef, declId);
+        ) => new Node(graphState, encapsulatingFunction, declId);
 
         public void GenerateCode(
             NodeId nodeId,

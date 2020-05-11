@@ -1,11 +1,12 @@
 ﻿using ByteRush.Utilities.Interface;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace ByteRush.Utilities
 {
-    public sealed class ArrayList<T> : IRefList<T>
+    public sealed class ArrayList<T> : IRefList<T>, IEnumerable<T>
     {
         private const int GROWTH_FACTOR = 2;
 
@@ -53,6 +54,10 @@ namespace ByteRush.Utilities
         public T[] ToArray() => Inner.Take(Count).ToArray();
 
         public IRefEnumerator<T> GetEnumerator() => ArrayListEnumerator<T>.New(this);
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Inner.Take(Count).GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => Inner.Take(Count).GetEnumerator();
     }
 
     public static class ArrayList

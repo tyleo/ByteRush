@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using ByteRush.Utilities.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ByteRush.Utilities
 {
     public sealed class CompactedList<T>
     {
         private readonly ArrayList<T> _inner = ArrayList<T>.New();
-        private readonly Indexer _indexer = new Indexer();
+        private readonly Indexer _indexer = Indexer.New();
 
         private CompactedList() { }
         public static CompactedList<T> New() => new CompactedList<T>();
@@ -31,5 +33,10 @@ namespace ByteRush.Utilities
         }
 
         public ref T this[int i] => ref _inner[i];
+
+        public IEnumerable<T> Items() => _inner
+            .Enumerate()
+            .Where(i => _indexer.IsActive(i.Index))
+            .Select(i => i.Value);
     }
 }

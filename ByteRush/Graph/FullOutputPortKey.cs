@@ -5,29 +5,29 @@ namespace ByteRush.Graph
 {
     public struct FullOutputPortKey : IEquatable<FullOutputPortKey>
     {
-        public NodeDeclId NodeDef { get; }
+        public NodeDeclId Function { get; }
         public NodeId Node { get; }
         public OutputPortId Port { get; }
 
-        private FullOutputPortKey(NodeDeclId nodeDef, NodeId nodeId, OutputPortId portId)
+        private FullOutputPortKey(NodeDeclId function, NodeId nodeId, OutputPortId portId)
         {
-            NodeDef = nodeDef;
+            Function = function;
             Node = nodeId;
             Port = portId;
         }
 
-        public static FullOutputPortKey New(NodeDeclId nodeDef, NodeId nodeId, OutputPortId portId) =>
-            new FullOutputPortKey(nodeDef, nodeId, portId);
+        public static FullOutputPortKey New(NodeDeclId function, NodeId nodeId, OutputPortId portId) =>
+            new FullOutputPortKey(function, nodeId, portId);
 
         public bool Equals(FullOutputPortKey other) =>
-            NodeDef.Equals(other.NodeDef) &&
+            Function.Equals(other.Function) &&
             Node.Equals(other.Node) &&
             Port.Equals(other.Port);
 
         public override bool Equals(object obj) => this.EquatableEquals(obj);
 
         public override int GetHashCode() =>
-            NodeDef.GetHashCode() ^
+            Function.GetHashCode() ^
             Node.GetHashCode() ^
             Port.GetHashCode();
     }

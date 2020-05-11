@@ -6,27 +6,27 @@ namespace ByteRush.Action
     {
         public ActionKind Kind => ActionKind.AddEdge;
 
-        public NodeDeclId NodeDef { get; }
+        public NodeDeclId Function { get; }
         private readonly OutputPortKey _from;
         public ref readonly OutputPortKey From => ref _from;
         private readonly InputPortKey _to;
         public ref readonly InputPortKey To => ref _to;
 
         private AddEdge(
-            NodeDeclId nodeDef,
+            NodeDeclId function,
             in OutputPortKey from,
             in InputPortKey to
         )
         {
-            NodeDef = nodeDef;
+            Function = function;
             _from = from;
             _to = to;
         }
 
         public static AddEdge New(
-            NodeDeclId nodeDef,
+            NodeDeclId function,
             in OutputPortKey from,
             in InputPortKey to
-        ) => new AddEdge(nodeDef, in from, in to);
+        ) => new AddEdge(function, in from, in to);
     }
 }

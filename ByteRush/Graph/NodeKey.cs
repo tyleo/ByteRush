@@ -5,26 +5,26 @@ namespace ByteRush.Graph
 {
     public struct NodeKey : IEquatable<NodeKey>
     {
-        public NodeDeclId NodeDef { get; }
+        public NodeDeclId Function { get; }
         public NodeId Node { get; }
 
-        private NodeKey(NodeDeclId nodeDef, NodeId node)
+        private NodeKey(NodeDeclId function, NodeId node)
         {
-            NodeDef = nodeDef;
+            Function = function;
             Node = node;
         }
 
-        public static NodeKey New(NodeDeclId nodeDef, NodeId node) =>
-            new NodeKey(nodeDef, node);
+        public static NodeKey New(NodeDeclId function, NodeId node) =>
+            new NodeKey(function, node);
 
         public bool Equals(NodeKey other) =>
-            NodeDef.Equals(other.NodeDef) &&
+            Function.Equals(other.Function) &&
             Node.Equals(other.Node);
 
         public override bool Equals(object obj) => this.EquatableEquals(obj);
 
         public override int GetHashCode() =>
-            NodeDef.GetHashCode() ^
+            Function.GetHashCode() ^
             Node.GetHashCode();
     }
 }

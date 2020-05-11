@@ -11,9 +11,9 @@ namespace ByteRush.Graph.Definitions
         public static NodeDeclId Id => StaticFullName.NodeDeclId();
         public FullName FullName => StaticFullName;
 
-        public IReadOnlyList<PortDecl> GetInputs(NodeDef nodeDef) => new List<PortDecl>();
+        public IReadOnlyList<PortDecl> GetInputs(FunctionDef function) => new List<PortDecl>();
 
-        public IReadOnlyList<PortDecl> GetOutputs(NodeDef nodeDef) => nodeDef.GetInputs(nodeDef);
+        public IReadOnlyList<PortDecl> GetOutputs(FunctionDef function) => function.GetInputs(function);
 
         public object DefaultMeta() => null;
 
@@ -23,7 +23,7 @@ namespace ByteRush.Graph.Definitions
             CodeGenState state
         )
         {
-            var outputs = GetOutputs(state.NodeDef);
+            var outputs = GetOutputs(state.Function);
             int index = 0;
             foreach (var (output, portId) in outputs.Enumerate())
             {

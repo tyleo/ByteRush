@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace ByteRush.Graph
 {
-    public sealed class NodeDef : INodeDecl
+    public sealed class FunctionDef : INodeDecl
     {
         public FullName FullName { get; }
 
         private readonly List<PortDecl> _inputs = new List<PortDecl>();
-        public IReadOnlyList<PortDecl> GetInputs(NodeDef nodeDef) => _inputs;
+        public IReadOnlyList<PortDecl> GetInputs(FunctionDef function) => _inputs;
         private readonly List<PortDecl> _outputs = new List<PortDecl>();
-        public IReadOnlyList<PortDecl> GetOutputs(NodeDef nodeDef) => _outputs;
+        public IReadOnlyList<PortDecl> GetOutputs(FunctionDef function) => _outputs;
 
         private readonly CompactedList<Node> _nodes = CompactedList<Node>.New();
         private readonly CompactedList<Edge> _edges = CompactedList<Edge>.New();
@@ -39,7 +39,7 @@ namespace ByteRush.Graph
             throw new System.NotImplementedException();
         }
 
-        private NodeDef(FullName fullName) => FullName = fullName;
-        public static NodeDef New(FullName fullName) => new NodeDef(fullName);
+        private FunctionDef(FullName fullName) => FullName = fullName;
+        public static FunctionDef New(FullName fullName) => new FunctionDef(fullName);
     }
 }

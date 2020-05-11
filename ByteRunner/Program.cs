@@ -32,14 +32,17 @@ namespace ByteRunner
         private static void Main(string[] args)
         {
             var rawBytes = RawBytes();
-            var rawVm = new VirtualMachine(rawBytes);
-            var rawVm2 = new VirtualMachine(rawBytes);
-            var rawVm3 = new VirtualMachine(rawBytes);
+            var rawVm = VirtualMachine.New(rawBytes, Util.NewArray<Intrinsic>());
+            var rawVm2 = VirtualMachine.New(rawBytes, Util.NewArray<Intrinsic>());
+            var rawVm3 = VirtualMachine.New(rawBytes, Util.NewArray<Intrinsic>());
 
             var compiledBytes = CompiledBytes();
-            var compiledVm = new VirtualMachine(compiledBytes);
-            var compiledVm2 = new VirtualMachine(compiledBytes);
-            var compiledVm3 = new VirtualMachine(compiledBytes);
+            var compiledVm = VirtualMachine.New(compiledBytes, Util.NewArray<Intrinsic>());
+            var compiledVm2 = VirtualMachine.New(compiledBytes, Util.NewArray<Intrinsic>());
+            var compiledVm3 = VirtualMachine.New(compiledBytes, Util.NewArray<Intrinsic>());
+
+            var intrinsics = Intrinsic();
+            intrinsics.Execute();
 
             var sw = Stopwatch.StartNew();
 
@@ -69,8 +72,6 @@ namespace ByteRunner
             var frame60Result0 = sw.ElapsedHighResolutionFrame60s() * 100;
             Console.WriteLine($"{msResult0} ms");
             Console.WriteLine($"{frame60Result0} % frame");
-
-            
         }
 
         private static byte[] RawBytes()
@@ -180,7 +181,7 @@ namespace ByteRunner
 
             var worldName = FullName.FromLibEnd("Test", "World");
             var worldId = worldName.NodeDeclId();
-            var nodeDef = NodeDef.New(worldName);
+            var function = FunctionDef.New(worldName);
             state.Reduce(AddNodeDecls.New(
                 AddDef.New(),
                 ForDef.New(),
@@ -188,7 +189,7 @@ namespace ByteRunner
                 LessThanDef.New(),
                 SetDef.New(),
                 GetDef.New(),
-                nodeDef
+                function
             ));
 
             var nodeId = 0;
@@ -313,7 +314,43 @@ namespace ByteRunner
                 setNextNode1.InputPortKey(InputPortId.New(1))
             ));
 
-            return CodeGenState.GenerateCodeForNode(nodeDef, state, setLastCurrentNode0.Node);
+            return CodeGenState.GenerateCodeForNode(function, state, setLastCurrentNode0.Node);
+        }
+
+        private static VirtualMachine Intrinsic()
+        {
+            var state = GraphState.New();
+
+            var worldName = FullName.FromLibEnd("Test", "World");
+            var worldId = worldName.NodeDeclId();
+            var function = FunctionDef.New(worldName);
+
+            var helloName = FullName.FromLibEnd("Test", "Hello");
+            var helloId = helloName.NodeDeclId();
+
+            state.Reduce(AddNodeDecls.New(
+                IntrinsicDef.New(
+                    helloName,
+                    (in RetParams inOut) => {
+                        var value = inOut.I32Param(0);
+                        Console.Write(value);
+                        inOut.I32Return(0, value);
+                    },
+                    Util.NewArray(("In", TypeKind.I32)),
+                    Util.NewArray(("Out", TypeKind.I32))
+                ),
+                function
+            ));
+
+            state.Reduce(AddNode.New(helloId, worldId));
+            var helloNodeId = NodeId.New(0);
+            state.Reduce(SetDefaultValue.New(worldId.FullInputPortKey(helloNodeId, InputPortId.New(0)), new Value(5)));
+
+            var sharedState = SharedCodeGenState.New();
+            var bytes = CodeGenState.GenerateCodeForNode(function, state, helloNodeId, sharedState);
+            var intrinsics = sharedState.GetIntrinsics();
+
+            return VirtualMachine.New(bytes, intrinsics);
         }
     }
 }

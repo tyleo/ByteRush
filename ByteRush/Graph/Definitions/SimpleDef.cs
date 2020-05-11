@@ -7,10 +7,10 @@ namespace ByteRush.Graph.Definitions
         public abstract FullName FullName { get; }
 
         private readonly PortDecl[] _inputs;
-        public IReadOnlyList<PortDecl> GetInputs(NodeDef nodeDef) => _inputs;
+        public IReadOnlyList<PortDecl> GetInputs(FunctionDef function) => _inputs;
 
         private readonly PortDecl[] _outputs;
-        public IReadOnlyList<PortDecl> GetOutputs(NodeDef nodeDef) => _outputs;
+        public IReadOnlyList<PortDecl> GetOutputs(FunctionDef function) => _outputs;
 
         public virtual object DefaultMeta() => new object();
 

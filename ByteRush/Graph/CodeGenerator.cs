@@ -2,7 +2,7 @@
 {
     public delegate void CodeGenerator(
         in Node node,
-        in NodeDef nodeDef,
+        in FunctionDef function,
         in CodeGen.CodeGenState state,
         in State graphState
     );

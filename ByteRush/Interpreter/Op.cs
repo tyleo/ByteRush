@@ -4,6 +4,7 @@
         byte
     {
         AddI32,
+        CallIntrinsic,
         Copy,
         EnterFunction,
         Goto,

@@ -11,10 +11,10 @@ namespace ByteRush.Graph
         private readonly Dictionary<NodeDeclId, INodeDecl> _nodeDecls = new Dictionary<NodeDeclId, INodeDecl>();
 
         public INodeDecl GetNodeDecl(NodeDeclId i) => _nodeDecls[i];
-        public NodeDef GetNodeDef(NodeDeclId i) => (NodeDef)GetNodeDecl(i);
-        public ref readonly Node GetNode(NodeDeclId nodeDef, NodeId node) =>
-            ref GetNodeDef(nodeDef).GetNode(node);
-        public ref readonly Node GetNode(in NodeKey i) => ref GetNode(i.NodeDef, i.Node);
+        public FunctionDef GetFunction(NodeDeclId i) => (FunctionDef)GetNodeDecl(i);
+        public ref readonly Node GetNode(NodeDeclId function, NodeId node) =>
+            ref GetFunction(function).GetNode(node);
+        public ref readonly Node GetNode(in NodeKey i) => ref GetNode(i.Function, i.Node);
 
         private State() { }
 
@@ -27,16 +27,16 @@ namespace ByteRush.Graph
                 case ActionKind.AddEdge:
                     {
                         var addConnection = (AddEdge)action;
-                        var nodeDef = GetNodeDef(addConnection.NodeDef);
-                        nodeDef.AddEdge(in addConnection.From, in addConnection.To);
+                        var function = GetFunction(addConnection.Function);
+                        function.AddEdge(in addConnection.From, in addConnection.To);
                     }
                     break;
 
                 case ActionKind.AddNode:
                     {
                         var addNode = (AddNode)action;
-                        var nodeDef = GetNodeDef(addNode.NodeDefId);
-                        nodeDef.AddNode(Node.New(this, nodeDef, addNode.NodeDeclId));
+                        var function = GetFunction(addNode.FunctionId);
+                        function.AddNode(Node.New(this, function, addNode.NodeDeclId));
                     }
                     break;
 
@@ -50,7 +50,7 @@ namespace ByteRush.Graph
                 case ActionKind.SetDefaultValue:
                     {
                         var setDefaultValue = (SetDefaultValue)action;
-                        ref readonly var node = ref GetNode(setDefaultValue.Port.NodeDef, setDefaultValue.Port.Node);
+                        ref readonly var node = ref GetNode(setDefaultValue.Port.Function, setDefaultValue.Port.Node);
                         node.SetDefaultValue(setDefaultValue.Port.Port, setDefaultValue.Value);
                     }
                     break;

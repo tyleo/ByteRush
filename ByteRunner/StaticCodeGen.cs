@@ -9,7 +9,7 @@ namespace ByteRunner
     //public static class StaticCodeGen
     //{
     //    public static INodeDecl AddNode() => NodeDecl.New(
-    //        (in Node node, in NodeDef nodeDef, in CodeGenState state, in GraphState graphState) =>
+    //        (in Node node, in Function function, in CodeGenState state, in GraphState graphState) =>
     //        {
 
     //        },
@@ -60,7 +60,7 @@ namespace ByteRunner
 // * Write all AnonymousSymbols into the final instruction stream. Update the addresses in the old instruction stream.
 // * Write all of InstructionStreamInserter2s into their goto_address_locations
 
-// * Graph compilation of NodeDef (function)
+// * Graph compilation of Function (function)
 // * If pure start at end, if impure start at front
 // * Pure find the end node
 //   * Data back until the first node is found. Generate data back

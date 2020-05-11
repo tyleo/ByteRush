@@ -15,6 +15,9 @@ namespace ByteRush.CodeGen
 
         public OpCodeOnlyAddress<MStackAddress<T>> StackAddress<T>(StackAddress<T>? value = null) => I32(value?.Int ?? -1).Mark<MStackAddress<T>>();
 
+        public OpCodeOnlyAddress<MIntrinsic> Intrinsic(ushort intrinsic = ushort.MaxValue) =>
+            U16(intrinsic).Mark<MIntrinsic>();
+
         public OpCodeOnlyAddress<MI32> I32(int value = -1)
         {
             var startIndex = _bytes.Count;
@@ -57,6 +60,12 @@ namespace ByteRush.CodeGen
 
         public void WriteI32(int from, FinalOpCodeAddress<MI32> to) =>
             ByteUtil.WriteI32(_bytes.Inner, to.Int, from);
+
+        public void WriteIntrinsic(IntrinsicId from, OpCodeOnlyAddress<MIntrinsic> to) =>
+            ByteUtil.WriteU16(_bytes.Inner, to.Int, from.Int);
+
+        public void WriteU8(byte from, OpCodeOnlyAddress<MU8> to) =>
+            ByteUtil.WriteU8(_bytes.Inner, to.Int, from);
 
         public void WriteAddress<T>(FinalOpCodeAddress<T> from, FinalOpCodeAddress<MFinalOpCodeAddress<T>> to) =>
             WriteI32(from.Int, to.Mark<MI32>());

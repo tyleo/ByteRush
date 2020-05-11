@@ -28,6 +28,9 @@ namespace ByteRush.CodeGen
             return New(preambleEnd, opWriter);
         }
 
+        private FinalOpCodeAddress<T> NewFinalOpCodeAddress<T>(OpCodeOnlyAddress<T> address) =>
+            FinalOpCodeAddress.From(_preambleEnd, address);
+
         public static FinalOpCodeWriter New(
             PreambleAddress<MOpCode> preambleEnd,
             OpCodeWriter opWriter
@@ -35,33 +38,33 @@ namespace ByteRush.CodeGen
 
         public byte[] GetOpCode() => _opWriter.GetOpCode();
 
-        public void WriteAddress<T>(
-            FinalOpCodeAddress<T> from,
-            FinalOpCodeAddress<MFinalOpCodeAddress<T>> to
+        public void WriteAddress(
+            FinalOpCodeAddress<MOpCode> from,
+            FinalOpCodeAddress<MFinalOpCodeAddress<MOpCode>> to
         ) => _opWriter.WriteAddress(from, to);
 
-        public void WriteAddress<T>(
-            FinalOpCodeAddress<T> from,
-            OpCodeOnlyAddress<MFinalOpCodeAddress<T>> to
+        public void WriteAddress(
+            FinalOpCodeAddress<MOpCode> from,
+            OpCodeOnlyAddress<MFinalOpCodeAddress<MOpCode>> to
         ) => WriteAddress(
             from,
-            FinalOpCodeAddress.From(_preambleEnd, to)
+            NewFinalOpCodeAddress(to)
         );
 
-        public void WriteAddress<T>(
-            OpCodeOnlyAddress<T> from,
-            FinalOpCodeAddress<MFinalOpCodeAddress<T>> to
+        public void WriteAddress(
+            OpCodeOnlyAddress<MOpCode> from,
+            FinalOpCodeAddress<MFinalOpCodeAddress<MOpCode>> to
         ) => WriteAddress(
-            FinalOpCodeAddress.From(_preambleEnd, from),
+            NewFinalOpCodeAddress(from),
             to
         );
 
-        public void WriteAddress<T>(
-            OpCodeOnlyAddress<T> from,
-            OpCodeOnlyAddress<MFinalOpCodeAddress<T>> to
+        public void WriteAddress(
+            OpCodeOnlyAddress<MOpCode> from,
+            OpCodeOnlyAddress<MFinalOpCodeAddress<MOpCode>> to
         ) => WriteAddress(
-            FinalOpCodeAddress.From(_preambleEnd, from),
-            FinalOpCodeAddress.From(_preambleEnd, to)
+            NewFinalOpCodeAddress(from),
+            NewFinalOpCodeAddress(to)
         );
 
         public void WriteAddress<T>(
@@ -74,7 +77,7 @@ namespace ByteRush.CodeGen
             OpCodeOnlyAddress<MStackAddress<T>> to
         ) => _opWriter.WriteAddress(
             from,
-            FinalOpCodeAddress.From(_preambleEnd, to)
+            NewFinalOpCodeAddress(to)
         );
     }
 }

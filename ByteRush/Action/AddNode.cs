@@ -8,16 +8,16 @@ namespace ByteRush.Action
     {
         public ActionKind Kind => ActionKind.AddNode;
 
-        public NodeDeclId NodeDefId { get; }
+        public NodeDeclId FunctionId { get; }
         public NodeDeclId NodeDeclId { get; }
 
-        private AddNode(NodeDeclId nodeDeclId, NodeDeclId nodeDefId)
+        private AddNode(NodeDeclId nodeDeclId, NodeDeclId functionId)
         {
             NodeDeclId = nodeDeclId;
-            NodeDefId = nodeDefId;
+            FunctionId = functionId;
         }
 
-        public static AddNode New(NodeDeclId nodeDeclId, NodeDeclId nodeDefId) =>
-            new AddNode(nodeDeclId, nodeDefId);
+        public static AddNode New(NodeDeclId nodeDeclId, NodeDeclId functionId) =>
+            new AddNode(nodeDeclId, functionId);
     }
 }

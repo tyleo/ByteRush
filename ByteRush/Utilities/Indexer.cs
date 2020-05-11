@@ -7,14 +7,25 @@ namespace ByteRush.Utilities
     public sealed class Indexer
     {
         private int nextIndex = 0;
-        private readonly Stack<int> freeIndices = new Stack<int>();
+        private readonly HashSet<int> freeIndices = new HashSet<int>();
 
         public int GetIndex()
         {
-            if (freeIndices.Any()) return freeIndices.Pop();
+            if (freeIndices.Any())
+            {
+                var result = freeIndices.First();
+                freeIndices.Remove(result);
+                return result;
+            }
             return nextIndex++;
         }
 
-        public void FreeIndex(int index) => freeIndices.Push(index);
+        public void FreeIndex(int index) => freeIndices.Add(index);
+
+        public bool IsActive(int index) => index < nextIndex && !freeIndices.Contains(index);
+
+        private Indexer() { }
+
+        public static Indexer New() => new Indexer();
     }
 }

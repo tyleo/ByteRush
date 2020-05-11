@@ -1,4 +1,5 @@
 ﻿using ByteRush.Interpreter;
+using ByteRush.Utilities.Extensions;
 using System.Linq;
 
 namespace ByteRush.CodeGen
@@ -36,6 +37,25 @@ namespace ByteRush.CodeGen
             _opWriter.StackAddress<MI32>(),
             _opWriter.StackAddress<MI32>(),
             _opWriter.StackAddress<MI32>()
+        );
+
+        public (
+            OpCodeOnlyAddress<MOpCode> Address,
+            OpCodeOnlyAddress<MIntrinsic> Intrinsic,
+            OpCodeOnlyAddress<MU8> NumParams,
+            OpCodeOnlyAddress<MStackAddress<MUnknown>>[] Params,
+            OpCodeOnlyAddress<MU8> NumReturns,
+            OpCodeOnlyAddress<MStackAddress<MUnknown>>[] Returns
+        ) CallIntrinsic(
+            byte numParams,
+            byte numReturns
+        ) => (
+            _opWriter.Op(Op.CallIntrinsic),
+            _opWriter.Intrinsic(),
+            _opWriter.U8(),
+            Enumerable.Range(0, numParams).Select(_ => _opWriter.StackAddress<MUnknown>()).ToArray(),
+            _opWriter.U8(),
+            Enumerable.Range(0, numReturns).Select(_ => _opWriter.StackAddress<MUnknown>()).ToArray()
         );
 
         public (
@@ -85,5 +105,8 @@ namespace ByteRush.CodeGen
             _opWriter.StackAddress<MI32>(),
             _opWriter.StackAddress<MBool>()
         );
+
+        public void WriteIntrinsic(IntrinsicId from, OpCodeOnlyAddress<MIntrinsic> to) => _opWriter.WriteIntrinsic(from, to);
+        public void WriteU8(byte from, OpCodeOnlyAddress<MU8> to) => _opWriter.WriteU8(from, to);
     }
 }

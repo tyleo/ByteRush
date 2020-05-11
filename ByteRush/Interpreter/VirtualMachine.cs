@@ -14,14 +14,19 @@ namespace ByteRush.Interpreter
 
         private readonly Value[] _stack = new Value[STACK_SIZE_VALUES];
         private readonly byte[][] _objects;
+        private readonly Intrinsic[] _intrinsics;
 
-        public VirtualMachine(byte[] @object)
+        private VirtualMachine(byte[] @object, Intrinsic[] intrinsics)
         {
             _instructionPointer = 0;
             _stackPointer = 0;
             _objects = new byte[][] { @object };
             _object = _objects[0];
+            _intrinsics = intrinsics;
         }
+
+        public static VirtualMachine New(byte[] @object, Intrinsic[] intrinsics) =>
+            new VirtualMachine(@object, intrinsics);
 
         public void Execute()
         {
@@ -95,6 +100,21 @@ namespace ByteRush.Interpreter
                         var rhsOffset = ReadStackAddress();
                         var returnOffset = ReadStackAddress();
                         StackSlot(returnOffset)._i32 = StackSlot(lhsOffset)._i32 + StackSlot(rhsOffset)._i32;
+                    }
+                    break;
+
+                case Op.CallIntrinsic:
+                    {
+                        var intrinsic = ReadU16();
+                        var numParams = ReadU8();
+                        var paramBase = _instructionPointer;
+                        _instructionPointer += numParams * sizeof(int);
+                        var numReturns = ReadU8();
+                        var returnBase = _instructionPointer;
+                        _instructionPointer += numReturns * sizeof(int);
+
+                        var retParams = new RetParams(_object, _stack, paramBase, returnBase);
+                        _intrinsics[intrinsic](in retParams);
                     }
                     break;
 
