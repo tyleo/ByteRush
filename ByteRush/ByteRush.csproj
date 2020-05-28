@@ -5,4 +5,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ByteRush.Utilities\ByteRush.Utilities.csproj" />
+  </ItemGroup>
+
 </Project>

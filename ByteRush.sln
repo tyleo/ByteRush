@@ -7,7 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteRush", "ByteRush\ByteRu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteRunner", "ByteRunner\ByteRunner.csproj", "{21AE825F-7100-429B-AB1D-B6B922D73249}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteRush.Test", "ByteRush.Test\ByteRush.Test.csproj", "{BDE4D77B-5FD5-452B-9D37-3EC4C27275C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteRush.Test", "ByteRush.Test\ByteRush.Test.csproj", "{BDE4D77B-5FD5-452B-9D37-3EC4C27275C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteRush.Utilities", "ByteRush.Utilities\ByteRush.Utilities.csproj", "{AA94696A-FADB-4342-A819-539ED93CEF9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteRush.Test.Utilities", "ByteRush.Test.Utilities\ByteRush.Test.Utilities.csproj", "{0849C85A-950E-4216-982D-28A2C1E14A2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +31,14 @@ Global
 		{BDE4D77B-5FD5-452B-9D37-3EC4C27275C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDE4D77B-5FD5-452B-9D37-3EC4C27275C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDE4D77B-5FD5-452B-9D37-3EC4C27275C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA94696A-FADB-4342-A819-539ED93CEF9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA94696A-FADB-4342-A819-539ED93CEF9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA94696A-FADB-4342-A819-539ED93CEF9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA94696A-FADB-4342-A819-539ED93CEF9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0849C85A-950E-4216-982D-28A2C1E14A2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0849C85A-950E-4216-982D-28A2C1E14A2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0849C85A-950E-4216-982D-28A2C1E14A2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0849C85A-950E-4216-982D-28A2C1E14A2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
