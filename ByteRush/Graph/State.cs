@@ -43,7 +43,7 @@ namespace ByteRush.Graph
                 case ActionKind.AddNodeDecls:
                     {
                         var addNodeDecls = (AddNodeDecls)action;
-                        addNodeDecls.NodeDecls.ForEach(i => _nodeDecls.Add(NodeDeclId.New(i.FullName), i));
+                        addNodeDecls.NodeDecls.ForEach(i => _nodeDecls.Add(i.Id, i.NodeDecl));
                     }
                     break;
 

@@ -1,4 +1,5 @@
 ﻿using ByteRush.Utilities;
+using System;
 using System.Collections.Generic;
 
 namespace ByteRush.Graph
@@ -6,6 +7,7 @@ namespace ByteRush.Graph
     public sealed class FunctionDef : INodeDecl
     {
         public FullName FullName { get; }
+
 
         private readonly List<PortDecl> _inputs = new List<PortDecl>();
         public IReadOnlyList<PortDecl> GetInputs(FunctionDef function) => _inputs;
@@ -36,10 +38,14 @@ namespace ByteRush.Graph
             CodeGen.CodeGenState state
         )
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        private FunctionDef(FullName fullName) => FullName = fullName;
+        private FunctionDef(FullName fullName)
+        {
+            FullName = fullName;
+        }
+
         public static FunctionDef New(FullName fullName) => new FunctionDef(fullName);
     }
 }

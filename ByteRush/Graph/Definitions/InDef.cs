@@ -8,12 +8,15 @@ namespace ByteRush.Graph.Definitions
     public sealed class InDef : INodeDecl
     {
         private static FullName StaticFullName { get; } = FullName.FromLibEnd("System", "In");
-        public static NodeDeclId Id => StaticFullName.NodeDeclId();
         public FullName FullName => StaticFullName;
 
         public IReadOnlyList<PortDecl> GetInputs(FunctionDef function) => new List<PortDecl>();
 
         public IReadOnlyList<PortDecl> GetOutputs(FunctionDef function) => function.GetInputs(function);
+
+        private InDef() { }
+
+        public static InDef New() => new InDef();
 
         public object DefaultMeta() => null;
 

@@ -7,10 +7,10 @@ namespace ByteRush.Action
     {
         public ActionKind Kind => ActionKind.AddNodeDecls;
 
-        public IEnumerable<INodeDecl> NodeDecls { get; }
+        public IEnumerable<(NodeDeclId Id, INodeDecl NodeDecl)> NodeDecls { get; }
 
-        private AddNodeDecls(INodeDecl[] nodeDecls) => NodeDecls = nodeDecls;
+        private AddNodeDecls((NodeDeclId Id, INodeDecl NodeDecl)[] nodeDecls) => NodeDecls = nodeDecls;
 
-        public static AddNodeDecls New(params INodeDecl[] nodeDecls) => new AddNodeDecls(nodeDecls);
+        public static AddNodeDecls New(params (NodeDeclId Id, INodeDecl NodeDecl)[] nodeDecls) => new AddNodeDecls(nodeDecls);
     }
 }

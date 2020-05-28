@@ -6,7 +6,6 @@ namespace ByteRush.Graph.Definitions
     public sealed class ForDef : SimpleDef
     {
         private static FullName StaticFullName { get; } = FullName.FromLibEnd("System", "For");
-        public static NodeDeclId Id => StaticFullName.NodeDeclId();
         public override FullName FullName => StaticFullName;
 
         private ForDef() : base(

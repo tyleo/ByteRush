@@ -1,12 +1,12 @@
 ﻿using ByteRush.CodeGen;
 using ByteRush.Utilities;
+using System;
 
 namespace ByteRush.Graph.Definitions
 {
     public sealed class AddDef : SimpleDef
     {
         private static FullName StaticFullName { get; } = FullName.FromLibEnd("System", "Add");
-        public static NodeDeclId Id => StaticFullName.NodeDeclId();
         public override FullName FullName => StaticFullName;
 
         private AddDef() : base(

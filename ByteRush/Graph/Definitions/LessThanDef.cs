@@ -6,7 +6,6 @@ namespace ByteRush.Graph.Definitions
     public sealed class LessThanDef : SimpleDef
     {
         private static FullName StaticFullName { get; } = FullName.FromLibEnd("System", "LessThan");
-        public static NodeDeclId Id => StaticFullName.NodeDeclId();
         public override FullName FullName => StaticFullName;
 
         private LessThanDef() : base(

@@ -179,27 +179,19 @@ namespace ByteRunner
         {
             var state = GraphState.New();
 
-            var worldName = FullName.FromLibEnd("Test", "World");
-            var worldId = worldName.NodeDeclId();
-            var function = FunctionDef.New(worldName);
-            state.Reduce(AddNodeDecls.New(
-                AddDef.New(),
-                ForDef.New(),
-                IfDef.New(),
-                LessThanDef.New(),
-                SetDef.New(),
-                GetDef.New(),
-                function
-            ));
+            var worldId = Guid.NewGuid().NodeDeclId();
+            var world = FunctionDef.New(FullName.FromLibEnd("Test", "World"));
+            state.Reduce(AddNodeDecls.New(Def.ALL));
+            state.Reduce(AddNodeDecls.New((worldId, world)));
 
             var nodeId = 0;
-            state.Reduce(AddNode.New(SetDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.SET_ID, worldId));
             var setLastCurrentNode0 = NodeKey.New(worldId, NodeId.New(nodeId++));
             var setLastCurrentPort0 = setLastCurrentNode0.FullInputPortKey(InputPortId.New(1));
             state.Reduce(SetSetMetaName.New(setLastCurrentNode0, "lastCurrent"));
             state.Reduce(SetDefaultValue.New(setLastCurrentPort0, Value.I32(0)));
 
-            state.Reduce(AddNode.New(SetDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.SET_ID, worldId));
             var setCurrentNode0 = NodeKey.New(worldId, NodeId.New(nodeId++));
             var setCurrentPort0 = setCurrentNode0.FullInputPortKey(InputPortId.New(1));
             state.Reduce(SetSetMetaName.New(setCurrentNode0, "current"));
@@ -212,7 +204,7 @@ namespace ByteRunner
                 setCurrentNode0.InputPortKey(InputPortId.New(0))
             ));
 
-            state.Reduce(AddNode.New(SetDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.SET_ID, worldId));
             var setNextNode0 = NodeKey.New(worldId, NodeId.New(nodeId++));
             var setNextPort0 = setNextNode0.FullInputPortKey(InputPortId.New(1));
             state.Reduce(SetSetMetaName.New(setNextNode0, "next"));
@@ -225,7 +217,7 @@ namespace ByteRunner
             ));
 
 
-            state.Reduce(AddNode.New(ForDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.FOR_ID, worldId));
             var forNode = NodeKey.New(worldId, NodeId.New(nodeId++));
             var forFromPort = forNode.FullInputPortKey(InputPortId.New(1));
             var forToPort = forNode.FullInputPortKey(InputPortId.New(2));
@@ -239,19 +231,19 @@ namespace ByteRunner
                 forNode.InputPortKey(InputPortId.New(0))
             ));
 
-            state.Reduce(AddNode.New(GetDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.GET_ID, worldId));
             var getCurrent = NodeKey.New(worldId, NodeId.New(nodeId++));
             state.Reduce(SetGetMetaName.New(getCurrent, "current"));
 
-            state.Reduce(AddNode.New(GetDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.GET_ID, worldId));
             var getLastCurrent = NodeKey.New(worldId, NodeId.New(nodeId++));
             state.Reduce(SetGetMetaName.New(getLastCurrent, "lastCurrent"));
 
-            state.Reduce(AddNode.New(GetDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.GET_ID, worldId));
             var getNext = NodeKey.New(worldId, NodeId.New(nodeId++));
             state.Reduce(SetGetMetaName.New(getNext, "next"));
 
-            state.Reduce(AddNode.New(SetDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.SET_ID, worldId));
             var setLastCurrentNode1 = NodeKey.New(worldId, NodeId.New(nodeId++));
             state.Reduce(SetSetMetaName.New(setLastCurrentNode1, "lastCurrent"));
 
@@ -267,7 +259,7 @@ namespace ByteRunner
                 setLastCurrentNode1.InputPortKey(InputPortId.New(1))
             ));
 
-            state.Reduce(AddNode.New(SetDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.SET_ID, worldId));
             var setCurrentNode1 = NodeKey.New(worldId, NodeId.New(nodeId++));
             state.Reduce(SetSetMetaName.New(setCurrentNode1, "current"));
 
@@ -283,7 +275,7 @@ namespace ByteRunner
                 setCurrentNode1.InputPortKey(InputPortId.New(1))
             ));
 
-            state.Reduce(AddNode.New(AddDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.ADD_ID, worldId));
             var addNode = NodeKey.New(worldId, NodeId.New(nodeId++));
 
             state.Reduce(AddEdge.New(
@@ -298,7 +290,7 @@ namespace ByteRunner
                 addNode.InputPortKey(InputPortId.New(1))
             ));
 
-            state.Reduce(AddNode.New(SetDef.Id, worldId));
+            state.Reduce(AddNode.New(Def.SET_ID, worldId));
             var setNextNode1 = NodeKey.New(worldId, NodeId.New(nodeId++));
             state.Reduce(SetSetMetaName.New(setNextNode1, "next"));
 
@@ -314,32 +306,32 @@ namespace ByteRunner
                 setNextNode1.InputPortKey(InputPortId.New(1))
             ));
 
-            return CodeGenState.GenerateCodeForNode(function, state, setLastCurrentNode0.Node);
+            return CodeGenState.GenerateCodeForNode(world, state, setLastCurrentNode0.Node);
         }
 
         private static VirtualMachine Intrinsic()
         {
             var state = GraphState.New();
 
-            var worldName = FullName.FromLibEnd("Test", "World");
-            var worldId = worldName.NodeDeclId();
-            var function = FunctionDef.New(worldName);
+            var worldId = Guid.NewGuid().NodeDeclId();
+            var world = FunctionDef.New(FullName.FromLibEnd("Test", "World"));
 
-            var helloName = FullName.FromLibEnd("Test", "Hello");
-            var helloId = helloName.NodeDeclId();
+            var helloId = Guid.NewGuid().NodeDeclId();
+            var hello = IntrinsicDef.New(
+                FullName.FromLibEnd("Test", "Hello"),
+                (in RetParams inOut) =>
+                {
+                    var value = inOut.I32Param(0);
+                    Console.Write(value);
+                    inOut.I32Return(0, value);
+                },
+                Util.NewArray(("In", TypeKind.I32)),
+                Util.NewArray(("Out", TypeKind.I32))
+            );
 
             state.Reduce(AddNodeDecls.New(
-                IntrinsicDef.New(
-                    helloName,
-                    (in RetParams inOut) => {
-                        var value = inOut.I32Param(0);
-                        Console.Write(value);
-                        inOut.I32Return(0, value);
-                    },
-                    Util.NewArray(("In", TypeKind.I32)),
-                    Util.NewArray(("Out", TypeKind.I32))
-                ),
-                function
+                (worldId, world),
+                (helloId, hello)
             ));
 
             state.Reduce(AddNode.New(helloId, worldId));
@@ -347,7 +339,7 @@ namespace ByteRunner
             state.Reduce(SetDefaultValue.New(worldId.FullInputPortKey(helloNodeId, InputPortId.New(0)), new Value(5)));
 
             var sharedState = SharedCodeGenState.New();
-            var bytes = CodeGenState.GenerateCodeForNode(function, state, helloNodeId, sharedState);
+            var bytes = CodeGenState.GenerateCodeForNode(world, state, helloNodeId, sharedState);
             var intrinsics = sharedState.GetIntrinsics();
 
             return VirtualMachine.New(bytes, intrinsics);

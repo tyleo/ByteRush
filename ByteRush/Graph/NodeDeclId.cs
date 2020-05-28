@@ -5,11 +5,11 @@ namespace ByteRush.Graph
 {
     public struct NodeDeclId : IEquatable<NodeDeclId>
     {
-        private readonly FullName _inner;
+        private readonly Guid _inner;
 
-        private NodeDeclId(FullName inner) => _inner = inner;
+        private NodeDeclId(Guid inner) => _inner = inner;
 
-        public static NodeDeclId New(FullName inner) => new NodeDeclId(inner);
+        public static NodeDeclId New(Guid inner) => new NodeDeclId(inner);
 
         public bool Equals(NodeDeclId other) => _inner.Equals(other._inner);
 

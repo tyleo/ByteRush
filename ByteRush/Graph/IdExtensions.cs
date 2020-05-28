@@ -1,11 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
 
 namespace ByteRush.Graph
 {
     public static class IdExtensions
     {
-        public static NodeDeclId NodeDeclId(this FullName self) =>
-            ByteRush.Graph.NodeDeclId.New(self);
+        public static NodeDeclId NodeDeclId(this Guid self) =>
+            Graph.NodeDeclId.New(self);
 
         public static NodeKey NodeKey(this FullInputPortKey self) =>
             Graph.NodeKey.New(self.Function, self.Node);
