@@ -54,7 +54,6 @@ namespace ByteRunner
             Console.WriteLine($"{frame60Result2} % frame");
 
             compiledVm2.Execute();
-            rawVm2.Execute();
 
             sw.Restart();
             rawVm.Execute();
@@ -66,12 +65,20 @@ namespace ByteRunner
             rawVm3.Execute();
             compiledVm3.Execute();
 
+            rawVm2.Execute();
             sw.Restart();
             compiledVm.Execute();
             var msResult0 = sw.ElapsedHighResolutionMilliseconds();
             var frame60Result0 = sw.ElapsedHighResolutionFrame60s() * 100;
             Console.WriteLine($"{msResult0} ms");
             Console.WriteLine($"{frame60Result0} % frame");
+
+            sw.Restart();
+            result = Fibonacci(COUNT);
+            msResult2 = sw.ElapsedHighResolutionMilliseconds();
+            frame60Result2 = sw.ElapsedHighResolutionFrame60s() * 100;
+            Console.WriteLine($"{msResult2} ms");
+            Console.WriteLine($"{frame60Result2} % frame");
         }
 
         private static byte[] RawBytes()

@@ -167,23 +167,6 @@ namespace ByteRush.Test.Utilities.Extensions
         }
 
         [Test]
-        public void ToHashSetTest()
-        {
-            var expected = Util.NewArray("0", "1");
-            var actual = IEnumerableExt.ToHashSet(Util.NewArray("0", "1", "1"));
-
-            foreach (var value in expected)
-            {
-                Assert.IsTrue(actual.Contains(value));
-            }
-
-            Assert.AreEqual(2, actual.Count);
-
-            var empty = Util.NewArray<(object, object)>().ToDictionary();
-            Assert.IsEmpty(empty);
-        }
-
-        [Test]
         public void ToTuplesTest()
         {
             var expected = Util.NewArray(Util.NewKVP("0", 0), Util.NewKVP("1", 1));
